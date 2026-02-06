@@ -34,6 +34,7 @@ namespace FastPin.ViewModels
         // Clipboard preview data
         private string? _clipboardPreviewText;
         private byte[]? _clipboardPreviewImage;
+        private BitmapImage? _clipboardPreviewImageSource;
         private string? _clipboardPreviewFilePath;
         private ItemType? _clipboardPreviewType;
 
@@ -146,30 +147,7 @@ namespace FastPin.ViewModels
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
 
-        public BitmapImage? ClipboardPreviewImageSource
-        {
-            get
-            {
-                if (_clipboardPreviewImage == null || _clipboardPreviewImage.Length == 0)
-                    return null;
-
-                try
-                {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.StreamSource = new MemoryStream(_clipboardPreviewImage);
-                    bitmap.EndInit();
-                    bitmap.Freeze();
-                    return bitmap;
-                }
-                catch
-                {
-                    // Silently fail for corrupted image data
-                    return null;
-                }
-            }
-        }
+        public BitmapImage? ClipboardPreviewImageSource => _clipboardPreviewImageSource;
 
         public string CurrentLanguage
         {
@@ -204,6 +182,7 @@ namespace FastPin.ViewModels
                     _clipboardPreviewText = Clipboard.GetText();
                     _clipboardPreviewType = ItemType.Text;
                     _clipboardPreviewImage = null;
+                    _clipboardPreviewImageSource = null;
                     _clipboardPreviewFilePath = null;
                 }
                 else if (Clipboard.ContainsImage())
@@ -218,6 +197,24 @@ namespace FastPin.ViewModels
                             encoder.Save(stream);
                             _clipboardPreviewImage = stream.ToArray();
                         }
+                        
+                        // Create cached BitmapImage for preview
+                        try
+                        {
+                            var bitmap = new BitmapImage();
+                            bitmap.BeginInit();
+                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmap.StreamSource = new MemoryStream(_clipboardPreviewImage);
+                            bitmap.EndInit();
+                            bitmap.Freeze();
+                            _clipboardPreviewImageSource = bitmap;
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error creating image preview: {ex.Message}");
+                            _clipboardPreviewImageSource = null;
+                        }
+                        
                         _clipboardPreviewType = ItemType.Image;
                         _clipboardPreviewText = null;
                         _clipboardPreviewFilePath = null;
@@ -232,6 +229,7 @@ namespace FastPin.ViewModels
                         _clipboardPreviewType = ItemType.File;
                         _clipboardPreviewText = null;
                         _clipboardPreviewImage = null;
+                        _clipboardPreviewImageSource = null;
                     }
                 }
                 
@@ -648,6 +646,7 @@ namespace FastPin.ViewModels
         {
             _clipboardPreviewText = null;
             _clipboardPreviewImage = null;
+            _clipboardPreviewImageSource = null;
             _clipboardPreviewFilePath = null;
             _clipboardPreviewType = null;
             OnPropertyChanged(nameof(ClipboardPreviewText));
