@@ -7,10 +7,10 @@ FastPin is a WPF desktop application built with the MVVM pattern, using SQLite f
 ## Technology Stack
 
 - **Framework**: WPF (Windows Presentation Foundation)
-- **Platform**: .NET 10.0
+- **Platform**: .NET 8.0
 - **UI Pattern**: MVVM (Model-View-ViewModel)
 - **Database**: SQLite
-- **ORM**: Entity Framework Core 9.0
+- **ORM**: Entity Framework Core 8.0
 - **Approach**: Model First with Code First migrations
 
 ## Project Structure

@@ -23,7 +23,7 @@ FastPin is a modern WPF application that allows you to quickly pin text, images,
 
 ## Technology Stack
 
-- **Framework**: WPF (.NET 10.0)
+- **Framework**: WPF (.NET 8.0)
 - **Architecture**: MVVM (Model-View-ViewModel)
 - **Database**: SQLite with Entity Framework Core
 - **ORM Approach**: Model First with Code First migrations
@@ -66,7 +66,7 @@ dotnet run
 
 ## Requirements
 
-- .NET 10.0 SDK or later
+- .NET 8.0 SDK or later
 - Windows OS (for WPF support)
 
 ## Architecture

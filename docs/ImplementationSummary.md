@@ -7,7 +7,7 @@ FastPin is a modern WPF desktop application that allows users to quickly pin and
 ## Requirements Fulfillment
 
 ### ✅ 1. Framework - WPF with MVVM
-- **Implementation**: Complete WPF application using .NET 10.0
+- **Implementation**: Complete WPF application using .NET 8.0
 - **Pattern**: Full MVVM architecture with ViewModels, Models, and Views
 - **Structure**: Clear separation of concerns with dedicated folders for each layer
 - **Commands**: ICommand implementations using RelayCommand
@@ -15,7 +15,7 @@ FastPin is a modern WPF desktop application that allows users to quickly pin and
 
 ### ✅ 2. Database - SQLite with ORM
 - **Database**: SQLite database stored in `%APPDATA%\FastPin\fastpin.db`
-- **ORM**: Entity Framework Core 9.0
+- **ORM**: Entity Framework Core 8.0
 - **Approach**: Model First - Models defined as C# classes, database schema auto-generated
 - **Context**: FastPinDbContext with proper configuration and relationships
 - **Migrations**: Code First with automatic database creation
