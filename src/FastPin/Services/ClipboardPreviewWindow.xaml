@@ -49,10 +49,11 @@
 
                     <!-- Image Preview -->
                     <Grid Visibility="{Binding ClipboardPreviewType, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=Image}">
-                        <TextBlock Text="[Image Preview]" 
-                                   FontSize="13" 
-                                   FontStyle="Italic"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <Image Source="{Binding ClipboardPreviewImageSource}" 
+                               MaxHeight="120" 
+                               MaxWidth="320"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"/>
                     </Grid>
 
                     <!-- File Preview -->

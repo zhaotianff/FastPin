@@ -34,6 +34,7 @@ namespace FastPin.ViewModels
         // Clipboard preview data
         private string? _clipboardPreviewText;
         private byte[]? _clipboardPreviewImage;
+        private BitmapImage? _clipboardPreviewImageSource;
         private string? _clipboardPreviewFilePath;
         private ItemType? _clipboardPreviewType;
 
@@ -146,6 +147,8 @@ namespace FastPin.ViewModels
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
 
+        public BitmapImage? ClipboardPreviewImageSource => _clipboardPreviewImageSource;
+
         public string CurrentLanguage
         {
             get => _currentLanguage;
@@ -179,6 +182,7 @@ namespace FastPin.ViewModels
                     _clipboardPreviewText = Clipboard.GetText();
                     _clipboardPreviewType = ItemType.Text;
                     _clipboardPreviewImage = null;
+                    _clipboardPreviewImageSource = null;
                     _clipboardPreviewFilePath = null;
                 }
                 else if (Clipboard.ContainsImage())
@@ -193,6 +197,24 @@ namespace FastPin.ViewModels
                             encoder.Save(stream);
                             _clipboardPreviewImage = stream.ToArray();
                         }
+                        
+                        // Create cached BitmapImage for preview
+                        try
+                        {
+                            var bitmap = new BitmapImage();
+                            bitmap.BeginInit();
+                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmap.StreamSource = new MemoryStream(_clipboardPreviewImage);
+                            bitmap.EndInit();
+                            bitmap.Freeze();
+                            _clipboardPreviewImageSource = bitmap;
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error creating image preview: {ex.Message}");
+                            _clipboardPreviewImageSource = null;
+                        }
+                        
                         _clipboardPreviewType = ItemType.Image;
                         _clipboardPreviewText = null;
                         _clipboardPreviewFilePath = null;
@@ -207,12 +229,14 @@ namespace FastPin.ViewModels
                         _clipboardPreviewType = ItemType.File;
                         _clipboardPreviewText = null;
                         _clipboardPreviewImage = null;
+                        _clipboardPreviewImageSource = null;
                     }
                 }
                 
                 // Notify that clipboard preview is available
                 OnPropertyChanged(nameof(ClipboardPreviewText));
                 OnPropertyChanged(nameof(ClipboardPreviewType));
+                OnPropertyChanged(nameof(ClipboardPreviewImageSource));
             }
             catch (Exception ex)
             {
@@ -622,10 +646,12 @@ namespace FastPin.ViewModels
         {
             _clipboardPreviewText = null;
             _clipboardPreviewImage = null;
+            _clipboardPreviewImageSource = null;
             _clipboardPreviewFilePath = null;
             _clipboardPreviewType = null;
             OnPropertyChanged(nameof(ClipboardPreviewText));
             OnPropertyChanged(nameof(ClipboardPreviewType));
+            OnPropertyChanged(nameof(ClipboardPreviewImageSource));
         }
 
         private void CopyItem(PinnedItemViewModel? item)
