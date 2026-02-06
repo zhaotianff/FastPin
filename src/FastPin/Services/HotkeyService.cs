@@ -44,6 +44,13 @@ namespace FastPin.Services
                 uint vk = (uint)KeyInterop.VirtualKeyFromKey(Key.P);
                 
                 _isRegistered = RegisterHotKey(handle, HOTKEY_ID, modifiers, vk);
+                
+                // Log or handle registration failure
+                if (!_isRegistered)
+                {
+                    // Hotkey registration failed - possibly already in use
+                    System.Diagnostics.Debug.WriteLine("Failed to register hotkey Ctrl+Shift+P. It may be in use by another application.");
+                }
             }
         }
 

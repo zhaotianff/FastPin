@@ -134,7 +134,7 @@
                     <!-- Language Switcher -->
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="15,0,0,0">
                         <TextBlock Text="{conv:Localize Language}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-                        <ComboBox Width="100" FontSize="12" SelectedValue="{Binding CurrentLanguage}">
+                        <ComboBox Width="100" FontSize="12" SelectedValue="{Binding CurrentLanguage}" SelectedValuePath="Tag">
                             <ComboBoxItem Content="English" Tag="en-US" IsSelected="True"/>
                             <ComboBoxItem Content="中文" Tag="zh-CN"/>
                         </ComboBox>

@@ -16,8 +16,34 @@ public partial class MainWindow : Window
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
         
+        // Subscribe to hotkey event
+        _viewModel.HotkeyPressed += ViewModel_HotkeyPressed;
+        
         Loaded += MainWindow_Loaded;
         Closed += MainWindow_Closed;
+    }
+
+    private void ViewModel_HotkeyPressed(object? sender, EventArgs e)
+    {
+        // Show the quick pin menu at mouse cursor
+        var menu = new QuickPinMenu();
+        menu.ActionSelected += (s, action) =>
+        {
+            switch (action)
+            {
+                case "PinText":
+                    _viewModel.PinTextCommand.Execute(null);
+                    break;
+                case "PinImage":
+                    _viewModel.PinImageCommand.Execute(null);
+                    break;
+                case "PinFile":
+                    _viewModel.PinFileCommand.Execute(null);
+                    break;
+            }
+        };
+        menu.Show();
+        menu.Activate();
     }
 
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)

@@ -24,9 +24,19 @@ namespace FastPin.Resources
 
         public static void SetCulture(string cultureName)
         {
-            _currentCulture = new CultureInfo(cultureName);
-            CultureInfo.CurrentUICulture = _currentCulture;
-            CultureInfo.CurrentCulture = _currentCulture;
+            try
+            {
+                _currentCulture = new CultureInfo(cultureName);
+                CultureInfo.CurrentUICulture = _currentCulture;
+                CultureInfo.CurrentCulture = _currentCulture;
+            }
+            catch (CultureNotFoundException)
+            {
+                // Fall back to English if the culture is not found
+                _currentCulture = new CultureInfo("en-US");
+                CultureInfo.CurrentUICulture = _currentCulture;
+                CultureInfo.CurrentCulture = _currentCulture;
+            }
         }
 
         public static CultureInfo GetCurrentCulture()

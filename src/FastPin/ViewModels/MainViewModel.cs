@@ -149,13 +149,9 @@ namespace FastPin.ViewModels
                 return;
 
             FastPin.Resources.LocalizationService.SetCulture(cultureName);
-            _currentLanguage = cultureName;
             
             // Reload items to update date group labels
             LoadItems();
-            
-            // Notify UI that language has changed
-            OnPropertyChanged(nameof(CurrentLanguage));
         }
 
         private void OnClipboardChanged(object? sender, EventArgs e)
@@ -553,28 +549,10 @@ namespace FastPin.ViewModels
 
         private void OnHotkeyPressed(object? sender, EventArgs e)
         {
-            // Show the quick pin menu at mouse cursor
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                var menu = new QuickPinMenu();
-                menu.ActionSelected += (s, action) =>
-                {
-                    switch (action)
-                    {
-                        case "PinText":
-                            PinText();
-                            break;
-                        case "PinImage":
-                            PinImage();
-                            break;
-                        case "PinFile":
-                            PinFile();
-                            break;
-                    }
-                };
-                menu.Show();
-                menu.Activate();
-            });
+            // Raise event to show quick pin menu (handled in View)
+            HotkeyPressed?.Invoke(this, EventArgs.Empty);
         }
+
+        public event EventHandler? HotkeyPressed;
     }
 }
