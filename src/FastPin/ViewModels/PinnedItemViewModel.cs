@@ -72,6 +72,8 @@ namespace FastPin.ViewModels
                 }
                 catch
                 {
+                    // Silently fail for corrupted image data - return null to avoid breaking UI
+                    // The UI will simply not display the image
                     return null;
                 }
             }

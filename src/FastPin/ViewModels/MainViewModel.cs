@@ -141,8 +141,8 @@ namespace FastPin.ViewModels
                 _dbContext.PinnedItems.Add(item);
                 _dbContext.SaveChanges();
 
-                var viewModel = new PinnedItemViewModel(item);
-                Items.Insert(0, viewModel);
+                // Reload items to ensure both grouped and ungrouped views are synchronized
+                LoadItems();
             }
             catch (Exception ex)
             {
@@ -181,8 +181,8 @@ namespace FastPin.ViewModels
                 _dbContext.PinnedItems.Add(item);
                 _dbContext.SaveChanges();
 
-                var viewModel = new PinnedItemViewModel(item);
-                Items.Insert(0, viewModel);
+                // Reload items to ensure both grouped and ungrouped views are synchronized
+                LoadItems();
             }
             catch (Exception ex)
             {
@@ -218,10 +218,10 @@ namespace FastPin.ViewModels
 
                     _dbContext.PinnedItems.Add(item);
                     _dbContext.SaveChanges();
-
-                    var viewModel = new PinnedItemViewModel(item);
-                    Items.Insert(0, viewModel);
                 }
+
+                // Reload items to ensure both grouped and ungrouped views are synchronized
+                LoadItems();
             }
             catch (Exception ex)
             {
