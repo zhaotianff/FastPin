@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -53,7 +54,7 @@ namespace FastPin.ViewModels
             PinTextCommand = new RelayCommand(PinText);
             PinImageCommand = new RelayCommand(PinImage);
             PinFileCommand = new RelayCommand(PinFile);
-            DeleteItemCommand = new RelayCommand(DeleteItem, () => SelectedItem != null);
+            DeleteItemCommand = new RelayCommand<PinnedItemViewModel>(DeleteItem, item => item != null);
             AddTagCommand = new RelayCommand(AddTag, () => !string.IsNullOrWhiteSpace(NewTagName));
             ClearSearchCommand = new RelayCommand(ClearSearch);
             ToggleGroupingCommand = new RelayCommand(ToggleGrouping);
@@ -62,6 +63,7 @@ namespace FastPin.ViewModels
             PinClipboardCommand = new RelayCommand(PinClipboard);
             DiscardClipboardCommand = new RelayCommand(DiscardClipboard);
             CopyItemCommand = new RelayCommand<PinnedItemViewModel>(CopyItem);
+            ToggleFileCacheCommand = new RelayCommand<PinnedItemViewModel>(item => _ = ToggleFileCacheAsync(item));
 
             LoadItems();
             LoadAllTags();
@@ -143,6 +145,7 @@ namespace FastPin.ViewModels
         public ICommand PinClipboardCommand { get; }
         public ICommand DiscardClipboardCommand { get; }
         public ICommand CopyItemCommand { get; }
+        public ICommand ToggleFileCacheCommand { get; }
 
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
@@ -355,6 +358,53 @@ namespace FastPin.ViewModels
             }
         }
 
+        public async Task ToggleFileCacheAsync(PinnedItemViewModel? itemViewModel)
+        {
+            if (itemViewModel == null)
+                return;
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    var item = _dbContext.PinnedItems.Find(itemViewModel.Id);
+                    if (item == null || item.Type != ItemType.File)
+                        return;
+
+                    if (itemViewModel.IsCached)
+                    {
+                        // Cache the file
+                        if (!string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
+                        {
+                            item.CachedFileData = File.ReadAllBytes(item.FilePath);
+                        }
+                        else
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                MessageBox.Show("File not found. Cannot cache.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            });
+                            itemViewModel.IsCached = false;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        // Clear cached data
+                        item.CachedFileData = null;
+                    }
+
+                    item.IsCached = itemViewModel.IsCached;
+                    item.ModifiedDate = DateTime.Now;
+                    _dbContext.SaveChanges();
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error toggling file cache: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         public void ToggleFileCache(PinnedItemViewModel itemViewModel)
         {
             try
@@ -394,9 +444,9 @@ namespace FastPin.ViewModels
             }
         }
 
-        private void DeleteItem()
+        private void DeleteItem(PinnedItemViewModel? itemToDelete)
         {
-            if (SelectedItem == null)
+            if (itemToDelete == null)
                 return;
 
             try
@@ -410,12 +460,12 @@ namespace FastPin.ViewModels
                 if (result != MessageBoxResult.Yes)
                     return;
 
-                var item = _dbContext.PinnedItems.Find(SelectedItem.Id);
+                var item = _dbContext.PinnedItems.Find(itemToDelete.Id);
                 if (item != null)
                 {
                     _dbContext.PinnedItems.Remove(item);
                     _dbContext.SaveChanges();
-                    Items.Remove(SelectedItem);
+                    Items.Remove(itemToDelete);
                 }
             }
             catch (Exception ex)
