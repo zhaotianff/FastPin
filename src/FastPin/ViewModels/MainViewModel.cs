@@ -146,6 +146,31 @@ namespace FastPin.ViewModels
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
 
+        public BitmapImage? ClipboardPreviewImageSource
+        {
+            get
+            {
+                if (_clipboardPreviewImage == null || _clipboardPreviewImage.Length == 0)
+                    return null;
+
+                try
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.StreamSource = new MemoryStream(_clipboardPreviewImage);
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+                    return bitmap;
+                }
+                catch
+                {
+                    // Silently fail for corrupted image data
+                    return null;
+                }
+            }
+        }
+
         public string CurrentLanguage
         {
             get => _currentLanguage;
@@ -213,6 +238,7 @@ namespace FastPin.ViewModels
                 // Notify that clipboard preview is available
                 OnPropertyChanged(nameof(ClipboardPreviewText));
                 OnPropertyChanged(nameof(ClipboardPreviewType));
+                OnPropertyChanged(nameof(ClipboardPreviewImageSource));
             }
             catch (Exception ex)
             {
@@ -626,6 +652,7 @@ namespace FastPin.ViewModels
             _clipboardPreviewType = null;
             OnPropertyChanged(nameof(ClipboardPreviewText));
             OnPropertyChanged(nameof(ClipboardPreviewType));
+            OnPropertyChanged(nameof(ClipboardPreviewImageSource));
         }
 
         private void CopyItem(PinnedItemViewModel? item)
