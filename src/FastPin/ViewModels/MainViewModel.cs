@@ -30,6 +30,12 @@ namespace FastPin.ViewModels
         private ItemType? _selectedItemType = null;
         private DateTime? _selectedDate = null;
         private string _currentLanguage = "en-US";
+        
+        // Clipboard preview data
+        private string? _clipboardPreviewText;
+        private byte[]? _clipboardPreviewImage;
+        private string? _clipboardPreviewFilePath;
+        private ItemType? _clipboardPreviewType;
 
         public MainViewModel()
         {
@@ -52,6 +58,9 @@ namespace FastPin.ViewModels
             ToggleGroupingCommand = new RelayCommand(ToggleGrouping);
             ClearFiltersCommand = new RelayCommand(ClearFilters);
             ChangeLanguageCommand = new RelayCommand<string>(ChangeLanguage);
+            PinClipboardCommand = new RelayCommand(PinClipboard);
+            DiscardClipboardCommand = new RelayCommand(DiscardClipboard);
+            CopyItemCommand = new RelayCommand<PinnedItemViewModel>(CopyItem);
 
             LoadItems();
             LoadAllTags();
@@ -130,6 +139,12 @@ namespace FastPin.ViewModels
         public ICommand ToggleGroupingCommand { get; }
         public ICommand ClearFiltersCommand { get; }
         public ICommand ChangeLanguageCommand { get; }
+        public ICommand PinClipboardCommand { get; }
+        public ICommand DiscardClipboardCommand { get; }
+        public ICommand CopyItemCommand { get; }
+
+        public string? ClipboardPreviewText => _clipboardPreviewText;
+        public ItemType? ClipboardPreviewType => _clipboardPreviewType;
 
         public string CurrentLanguage
         {
@@ -158,22 +173,51 @@ namespace FastPin.ViewModels
         {
             try
             {
+                // Store clipboard data for preview instead of auto-pinning
                 if (Clipboard.ContainsText())
                 {
-                    PinText();
+                    _clipboardPreviewText = Clipboard.GetText();
+                    _clipboardPreviewType = ItemType.Text;
+                    _clipboardPreviewImage = null;
+                    _clipboardPreviewFilePath = null;
                 }
                 else if (Clipboard.ContainsImage())
                 {
-                    PinImage();
+                    var image = Clipboard.GetImage();
+                    if (image != null)
+                    {
+                        var encoder = new PngBitmapEncoder();
+                        encoder.Frames.Add(BitmapFrame.Create(image));
+                        using (var stream = new MemoryStream())
+                        {
+                            encoder.Save(stream);
+                            _clipboardPreviewImage = stream.ToArray();
+                        }
+                        _clipboardPreviewType = ItemType.Image;
+                        _clipboardPreviewText = null;
+                        _clipboardPreviewFilePath = null;
+                    }
                 }
                 else if (Clipboard.ContainsFileDropList())
                 {
-                    PinFile();
+                    var files = Clipboard.GetFileDropList();
+                    if (files != null && files.Count > 0)
+                    {
+                        _clipboardPreviewFilePath = files[0]?.ToString();
+                        _clipboardPreviewType = ItemType.File;
+                        _clipboardPreviewText = null;
+                        _clipboardPreviewImage = null;
+                    }
                 }
+                
+                // Notify that clipboard preview is available
+                OnPropertyChanged(nameof(ClipboardPreviewText));
+                OnPropertyChanged(nameof(ClipboardPreviewType));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error processing clipboard: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Silently log errors to avoid disrupting user workflow
+                System.Diagnostics.Debug.WriteLine($"Error processing clipboard: {ex.Message}");
             }
         }
 
@@ -259,9 +303,9 @@ namespace FastPin.ViewModels
                 if (files == null || files.Count == 0)
                     return;
 
-                foreach (string filePath in files)
+                foreach (string? filePath in files)
                 {
-                    if (!File.Exists(filePath))
+                    if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
                         continue;
 
                     var item = new PinnedItem
@@ -551,6 +595,74 @@ namespace FastPin.ViewModels
         {
             // Raise event to show quick pin menu (handled in View)
             HotkeyPressed?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void PinClipboard()
+        {
+            if (_clipboardPreviewType == null)
+                return;
+
+            switch (_clipboardPreviewType.Value)
+            {
+                case ItemType.Text:
+                    PinText();
+                    break;
+                case ItemType.Image:
+                    PinImage();
+                    break;
+                case ItemType.File:
+                    PinFile();
+                    break;
+            }
+            
+            DiscardClipboard();
+        }
+
+        private void DiscardClipboard()
+        {
+            _clipboardPreviewText = null;
+            _clipboardPreviewImage = null;
+            _clipboardPreviewFilePath = null;
+            _clipboardPreviewType = null;
+            OnPropertyChanged(nameof(ClipboardPreviewText));
+            OnPropertyChanged(nameof(ClipboardPreviewType));
+        }
+
+        private void CopyItem(PinnedItemViewModel? item)
+        {
+            if (item == null)
+                return;
+
+            try
+            {
+                switch (item.Type)
+                {
+                    case ItemType.Text:
+                        if (!string.IsNullOrEmpty(item.TextContent))
+                        {
+                            Clipboard.SetText(item.TextContent);
+                        }
+                        break;
+                    case ItemType.Image:
+                        if (item.ImageSource != null)
+                        {
+                            Clipboard.SetImage(item.ImageSource);
+                        }
+                        break;
+                    case ItemType.File:
+                        if (!string.IsNullOrEmpty(item.FilePath))
+                        {
+                            var files = new System.Collections.Specialized.StringCollection();
+                            files.Add(item.FilePath);
+                            Clipboard.SetFileDropList(files);
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error copying item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public event EventHandler? HotkeyPressed;

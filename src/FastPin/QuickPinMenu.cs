@@ -79,7 +79,7 @@ namespace FastPin
                 Margin = new Thickness(2),
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
-                HorizontalContentAlignment = HorizontalAlignment.Left,
+                HorizontalContentAlignment = System.Windows.HorizontalAlignment.Left,
                 Cursor = System.Windows.Input.Cursors.Hand,
                 FontSize = 14,
                 Width = 180

@@ -147,4 +147,19 @@
   <data name="Language" xml:space="preserve">
     <value>语言</value>
   </data>
+  <data name="Copy" xml:space="preserve">
+    <value>复制</value>
+  </data>
+  <data name="Pin" xml:space="preserve">
+    <value>固定</value>
+  </data>
+  <data name="Discard" xml:space="preserve">
+    <value>丢弃</value>
+  </data>
+  <data name="ClipboardPreview" xml:space="preserve">
+    <value>剪贴板预览</value>
+  </data>
+  <data name="NoClipboardContent" xml:space="preserve">
+    <value>没有剪贴板内容</value>
+  </data>
 </root>

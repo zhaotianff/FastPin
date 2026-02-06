@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
@@ -7,7 +8,7 @@ using FastPin.Resources;
 namespace FastPin.Converters
 {
     /// <summary>
-    /// Converter for accessing localized strings in XAML
+    /// Converter for accessing localized strings in XAML with dynamic updates
     /// </summary>
     public class LocalizeExtension : MarkupExtension
     {
@@ -24,7 +25,52 @@ namespace FastPin.Converters
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            return LocalizationService.GetString(Key);
+            var binding = new Binding("Value")
+            {
+                Source = new LocalizedString(Key),
+                Mode = BindingMode.OneWay
+            };
+            
+            return binding.ProvideValue(serviceProvider);
+        }
+    }
+
+    /// <summary>
+    /// Helper class to provide dynamic localized strings
+    /// Implements IDisposable to properly clean up event subscriptions
+    /// </summary>
+    public class LocalizedString : INotifyPropertyChanged, IDisposable
+    {
+        private readonly string _key;
+        private bool _disposed;
+
+        public LocalizedString(string key)
+        {
+            _key = key;
+            LocalizationService.PropertyChanged += OnLocalizationChanged;
+        }
+
+        public string Value => LocalizationService.GetString(_key);
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Value));
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                LocalizationService.PropertyChanged -= OnLocalizationChanged;
+                _disposed = true;
+            }
         }
     }
 
