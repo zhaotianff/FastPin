@@ -32,7 +32,7 @@ namespace FastPin
             this.SizeToContent = SizeToContent.WidthAndHeight;
             
             // Deactivate when losing focus
-            this.Deactivated += (s, e) => this.Close();
+            //this.Deactivated += (s, e) => this.Close();
         }
 
         private void InitializeComponent()

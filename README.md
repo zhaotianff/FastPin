@@ -99,6 +99,9 @@ dotnet run
 ### Data Layer
 - `FastPinDbContext`: Entity Framework Core DbContext for SQLite database operations
 
+### TODO
+在任务栏增加一个图标，鼠标移上去时，显示当前剪贴板的内容。可以选择pin或丢弃
+
 ## License
 
 MIT License
