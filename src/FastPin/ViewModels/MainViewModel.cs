@@ -63,7 +63,6 @@ namespace FastPin.ViewModels
             PinClipboardCommand = new RelayCommand(PinClipboard);
             DiscardClipboardCommand = new RelayCommand(DiscardClipboard);
             CopyItemCommand = new RelayCommand<PinnedItemViewModel>(CopyItem);
-            ToggleFileCacheCommand = new RelayCommand<PinnedItemViewModel>(item => _ = ToggleFileCacheAsync(item));
 
             LoadItems();
             LoadAllTags();
@@ -145,7 +144,6 @@ namespace FastPin.ViewModels
         public ICommand PinClipboardCommand { get; }
         public ICommand DiscardClipboardCommand { get; }
         public ICommand CopyItemCommand { get; }
-        public ICommand ToggleFileCacheCommand { get; }
 
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
@@ -367,7 +365,10 @@ namespace FastPin.ViewModels
             {
                 await Task.Run(() =>
                 {
-                    var item = _dbContext.PinnedItems.Find(itemViewModel.Id);
+                    // Create a new DbContext for thread-safety
+                    using var dbContext = new FastPinDbContext();
+                    
+                    var item = dbContext.PinnedItems.Find(itemViewModel.Id);
                     if (item == null || item.Type != ItemType.File)
                         return;
 
@@ -383,8 +384,8 @@ namespace FastPin.ViewModels
                             Application.Current.Dispatcher.Invoke(() =>
                             {
                                 MessageBox.Show("File not found. Cannot cache.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                itemViewModel.IsCached = false;
                             });
-                            itemViewModel.IsCached = false;
                             return;
                         }
                     }
@@ -396,47 +397,8 @@ namespace FastPin.ViewModels
 
                     item.IsCached = itemViewModel.IsCached;
                     item.ModifiedDate = DateTime.Now;
-                    _dbContext.SaveChanges();
+                    dbContext.SaveChanges();
                 });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error toggling file cache: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        public void ToggleFileCache(PinnedItemViewModel itemViewModel)
-        {
-            try
-            {
-                var item = _dbContext.PinnedItems.Find(itemViewModel.Id);
-                if (item == null || item.Type != ItemType.File)
-                    return;
-
-                if (itemViewModel.IsCached)
-                {
-                    // Cache the file
-                    if (!string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
-                    {
-                        item.CachedFileData = File.ReadAllBytes(item.FilePath);
-                        MessageBox.Show("File cached successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        MessageBox.Show("File not found. Cannot cache.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        itemViewModel.IsCached = false;
-                        return;
-                    }
-                }
-                else
-                {
-                    // Clear cached data
-                    item.CachedFileData = null;
-                }
-
-                item.IsCached = itemViewModel.IsCached;
-                item.ModifiedDate = DateTime.Now;
-                _dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
