@@ -23,11 +23,13 @@ public partial class MainWindow : Window
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         _viewModel.StartClipboardMonitoring();
+        _viewModel.StartHotkeyMonitoring();
     }
 
     private void MainWindow_Closed(object? sender, System.EventArgs e)
     {
         _viewModel.StopClipboardMonitoring();
+        _viewModel.StopHotkeyMonitoring();
     }
 
     private void DeleteButton_Click(object sender, RoutedEventArgs e)

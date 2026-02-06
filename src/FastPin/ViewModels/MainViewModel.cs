@@ -22,10 +22,13 @@ namespace FastPin.ViewModels
     {
         private readonly FastPinDbContext _dbContext;
         private readonly ClipboardMonitorService _clipboardMonitor;
+        private readonly HotkeyService _hotkeyService;
         private string _searchText = string.Empty;
         private string _newTagName = string.Empty;
         private PinnedItemViewModel? _selectedItem;
         private bool _groupByDate = true;
+        private ItemType? _selectedItemType = null;
+        private DateTime? _selectedDate = null;
 
         public MainViewModel()
         {
@@ -35,6 +38,9 @@ namespace FastPin.ViewModels
             _clipboardMonitor = new ClipboardMonitorService();
             _clipboardMonitor.ClipboardChanged += OnClipboardChanged;
 
+            _hotkeyService = new HotkeyService();
+            _hotkeyService.HotkeyPressed += OnHotkeyPressed;
+
             // Initialize commands
             PinTextCommand = new RelayCommand(PinText);
             PinImageCommand = new RelayCommand(PinImage);
@@ -43,6 +49,7 @@ namespace FastPin.ViewModels
             AddTagCommand = new RelayCommand(AddTag, () => !string.IsNullOrWhiteSpace(NewTagName));
             ClearSearchCommand = new RelayCommand(ClearSearch);
             ToggleGroupingCommand = new RelayCommand(ToggleGrouping);
+            ClearFiltersCommand = new RelayCommand(ClearFilters);
 
             LoadItems();
             LoadAllTags();
@@ -88,6 +95,30 @@ namespace FastPin.ViewModels
             set => SetProperty(ref _newTagName, value);
         }
 
+        public ItemType? SelectedItemType
+        {
+            get => _selectedItemType;
+            set
+            {
+                if (SetProperty(ref _selectedItemType, value))
+                {
+                    LoadItems();
+                }
+            }
+        }
+
+        public DateTime? SelectedDate
+        {
+            get => _selectedDate;
+            set
+            {
+                if (SetProperty(ref _selectedDate, value))
+                {
+                    LoadItems();
+                }
+            }
+        }
+
         public ICommand PinTextCommand { get; }
         public ICommand PinImageCommand { get; }
         public ICommand PinFileCommand { get; }
@@ -95,6 +126,7 @@ namespace FastPin.ViewModels
         public ICommand AddTagCommand { get; }
         public ICommand ClearSearchCommand { get; }
         public ICommand ToggleGroupingCommand { get; }
+        public ICommand ClearFiltersCommand { get; }
 
         private void OnClipboardChanged(object? sender, EventArgs e)
         {
@@ -370,6 +402,20 @@ namespace FastPin.ViewModels
                     p.ItemTags.Any(it => it.Tag.Name.ToLower().Contains(search)));
             }
 
+            // Filter by item type
+            if (SelectedItemType.HasValue)
+            {
+                query = query.Where(p => p.Type == SelectedItemType.Value);
+            }
+
+            // Filter by date
+            if (SelectedDate.HasValue)
+            {
+                var selectedDay = SelectedDate.Value.Date;
+                var nextDay = selectedDay.AddDays(1);
+                query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
+            }
+
             var items = query
                 .OrderByDescending(p => p.CreatedDate)
                 .ToList();
@@ -445,6 +491,13 @@ namespace FastPin.ViewModels
             SearchText = string.Empty;
         }
 
+        private void ClearFilters()
+        {
+            SelectedItemType = null;
+            SelectedDate = null;
+            SearchText = string.Empty;
+        }
+
         public void StartClipboardMonitoring()
         {
             _clipboardMonitor.Start();
@@ -453,6 +506,42 @@ namespace FastPin.ViewModels
         public void StopClipboardMonitoring()
         {
             _clipboardMonitor.Stop();
+        }
+
+        public void StartHotkeyMonitoring()
+        {
+            _hotkeyService.RegisterHotkey();
+        }
+
+        public void StopHotkeyMonitoring()
+        {
+            _hotkeyService.UnregisterHotkey();
+        }
+
+        private void OnHotkeyPressed(object? sender, EventArgs e)
+        {
+            // Show the quick pin menu at mouse cursor
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var menu = new QuickPinMenu();
+                menu.ActionSelected += (s, action) =>
+                {
+                    switch (action)
+                    {
+                        case "PinText":
+                            PinText();
+                            break;
+                        case "PinImage":
+                            PinImage();
+                            break;
+                        case "PinFile":
+                            PinFile();
+                            break;
+                    }
+                };
+                menu.Show();
+                menu.Activate();
+            });
         }
     }
 }

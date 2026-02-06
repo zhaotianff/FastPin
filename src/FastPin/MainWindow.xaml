@@ -28,62 +28,107 @@
         <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="15,10" 
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <!-- Search Box -->
-                <Grid Grid.Column="0" Margin="0,0,10,0">
+                <!-- First Row: Search and Action Buttons -->
+                <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" 
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource ModernTextBoxStyle}"
-                             FontSize="14">
-                        <TextBox.InputBindings>
-                            <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
-                        </TextBox.InputBindings>
-                    </TextBox>
-                    <TextBlock Grid.Column="0" Text="Search items..." 
-                               Margin="10,0,0,0" 
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               IsHitTestVisible="False">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SearchText}" Value="">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <Button Grid.Column="1" Content="✕" 
-                            Command="{Binding ClearSearchCommand}"
-                            Margin="5,0,0,0" Width="30"
-                            Style="{StaticResource ModernButtonStyle}"
-                            Visibility="{Binding SearchText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Search Box -->
+                    <Grid Grid.Column="0" Margin="0,0,10,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" 
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBoxStyle}"
+                                 FontSize="14">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <TextBlock Grid.Column="0" Text="Search items..." 
+                                   Margin="10,0,0,0" 
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchText}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Button Grid.Column="1" Content="✕" 
+                                Command="{Binding ClearSearchCommand}"
+                                Margin="5,0,0,0" Width="30"
+                                Style="{StaticResource ModernButtonStyle}"
+                                Visibility="{Binding SearchText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </Grid>
+
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="Pin Text" Command="{Binding PinTextCommand}" 
+                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
+                        <Button Content="Pin Image" Command="{Binding PinImageCommand}"
+                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
+                        <Button Content="Pin File" Command="{Binding PinFileCommand}"
+                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
+                        <CheckBox IsChecked="{Binding GroupByDate}" 
+                                  Content="Group by Date" 
+                                  VerticalAlignment="Center"
+                                  Margin="15,0,0,0"
+                                  FontSize="12"/>
+                    </StackPanel>
                 </Grid>
 
-                <!-- Action Buttons -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="Pin Text" Command="{Binding PinTextCommand}" 
-                            Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                    <Button Content="Pin Image" Command="{Binding PinImageCommand}"
-                            Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                    <Button Content="Pin File" Command="{Binding PinFileCommand}"
-                            Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                    <CheckBox IsChecked="{Binding GroupByDate}" 
-                              Content="Group by Date" 
-                              VerticalAlignment="Center"
-                              Margin="15,0,0,0"
-                              FontSize="12"/>
-                </StackPanel>
+                <!-- Second Row: Filters -->
+                <Grid Grid.Row="1" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Date Picker -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0">
+                        <TextBlock Text="Filter by Date:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+                        <DatePicker SelectedDate="{Binding SelectedDate}" Width="150" FontSize="12"/>
+                    </StackPanel>
+
+                    <!-- Type Filter -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,15,0">
+                        <TextBlock Text="Filter by Type:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+                        <ComboBox Width="120" FontSize="12" SelectedValue="{Binding SelectedItemType}">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="All" Tag="{x:Null}" IsSelected="True"/>
+                                <ComboBoxItem Content="Text" Tag="0"/>
+                                <ComboBoxItem Content="Image" Tag="1"/>
+                                <ComboBoxItem Content="File" Tag="2"/>
+                            </ComboBox.Items>
+                            <ComboBox.SelectedValuePath>Tag</ComboBox.SelectedValuePath>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Clear Filters Button -->
+                    <Button Grid.Column="2" Content="Clear Filters" 
+                            Command="{Binding ClearFiltersCommand}"
+                            Style="{StaticResource ModernButtonStyle}" 
+                            Background="#666666"
+                            FontSize="12" Padding="10,4"/>
+                </Grid>
             </Grid>
         </Border>
 
