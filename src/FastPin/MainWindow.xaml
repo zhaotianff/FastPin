@@ -90,7 +90,8 @@
                                   Content="{conv:Localize GroupByDate}" 
                                   VerticalAlignment="Center"
                                   Margin="15,0,0,0"
-                                  FontSize="12"/>
+                                  FontSize="12"
+                                  Style="{StaticResource ModernCheckBoxStyle}"/>
                     </StackPanel>
                 </Grid>
 
@@ -107,13 +108,13 @@
                     <!-- Date Picker -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0">
                         <TextBlock Text="{conv:Localize FilterByDate}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-                        <DatePicker SelectedDate="{Binding SelectedDate}" Width="150" FontSize="12"/>
+                        <DatePicker SelectedDate="{Binding SelectedDate}" Width="150" FontSize="12" Style="{StaticResource ModernDatePickerStyle}"/>
                     </StackPanel>
 
                     <!-- Type Filter -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,15,0">
                         <TextBlock Text="{conv:Localize FilterByType}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-                        <ComboBox Width="120" FontSize="12" SelectedValue="{Binding SelectedItemType}">
+                        <ComboBox Width="120" FontSize="12" SelectedValue="{Binding SelectedItemType}" Style="{StaticResource ModernComboBoxStyle}">
                             <ComboBox.Items>
                                 <ComboBoxItem Content="{conv:Localize All}" Tag="{x:Null}" IsSelected="True"/>
                                 <ComboBoxItem Content="{conv:Localize Text}" Tag="0"/>
@@ -134,7 +135,7 @@
                     <!-- Language Switcher -->
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="15,0,0,0">
                         <TextBlock Text="{conv:Localize Language}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-                        <ComboBox Width="100" FontSize="12" SelectedValue="{Binding CurrentLanguage}" SelectedValuePath="Tag">
+                        <ComboBox Width="100" FontSize="12" SelectedValue="{Binding CurrentLanguage}" SelectedValuePath="Tag" Style="{StaticResource ModernComboBoxStyle}">
                             <ComboBoxItem Content="English" Tag="en-US" IsSelected="True"/>
                             <ComboBoxItem Content="中文" Tag="zh-CN"/>
                         </ComboBox>
@@ -202,12 +203,15 @@
                                                     <!-- Content based on type -->
                                                     <Grid Grid.Row="1">
                                                         <!-- Text Content -->
-                                                        <TextBlock Text="{Binding TextContent}" 
-                                                                   TextWrapping="Wrap" 
-                                                                   MaxHeight="200"
-                                                                   FontSize="14"
-                                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                                   Visibility="{Binding Type, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=Text}"/>
+                                                        <TextBox Text="{Binding TextContent, Mode=OneWay}" 
+                                                                 TextWrapping="Wrap" 
+                                                                 MaxHeight="200"
+                                                                 FontSize="14"
+                                                                 Foreground="{StaticResource TextPrimaryBrush}"
+                                                                 IsReadOnly="True"
+                                                                 BorderThickness="0"
+                                                                 Background="Transparent"
+                                                                 Visibility="{Binding Type, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=Text}"/>
 
                                                         <!-- Image Content -->
                                                         <Image Source="{Binding ImageSource}" 
@@ -229,7 +233,8 @@
                                                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                                                 <CheckBox IsChecked="{Binding IsCached}" 
                                                                           Content="{conv:Localize CacheFileLocally}" 
-                                                                          VerticalAlignment="Center"/>
+                                                                          VerticalAlignment="Center"
+                                                                          Style="{StaticResource ModernCheckBoxStyle}"/>
                                                                 <TextBlock Text="{conv:Localize StoresACopy}" 
                                                                            FontSize="11" 
                                                                            Foreground="{StaticResource TextSecondaryBrush}"
@@ -269,6 +274,14 @@
 
                                                         <!-- Actions -->
                                                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                            <Button Content="{conv:Localize Copy}" 
+                                                                    Command="{Binding DataContext.CopyItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Style="{StaticResource ModernButtonStyle}"
+                                                                    Background="#008272"
+                                                                    Padding="10,4"
+                                                                    FontSize="12"
+                                                                    Margin="0,0,5,0"/>
                                                             <Button Content="{conv:Localize Delete}" 
                                                                     Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding}"
@@ -332,12 +345,15 @@
                                 <!-- Content based on type -->
                                 <Grid Grid.Row="1">
                                     <!-- Text Content -->
-                                    <TextBlock Text="{Binding TextContent}" 
-                                               TextWrapping="Wrap" 
-                                               MaxHeight="200"
-                                               FontSize="14"
-                                               Foreground="{StaticResource TextPrimaryBrush}"
-                                               Visibility="{Binding Type, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=Text}"/>
+                                    <TextBox Text="{Binding TextContent, Mode=OneWay}" 
+                                             TextWrapping="Wrap" 
+                                             MaxHeight="200"
+                                             FontSize="14"
+                                             Foreground="{StaticResource TextPrimaryBrush}"
+                                             IsReadOnly="True"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             Visibility="{Binding Type, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=Text}"/>
 
                                     <!-- Image Content -->
                                     <Image Source="{Binding ImageSource}" 
@@ -358,8 +374,9 @@
                                                    Margin="0,5,0,0"/>
                                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                             <CheckBox IsChecked="{Binding IsCached}" 
-                                                      Content="Cache file locally" 
-                                                      VerticalAlignment="Center"/>
+                                                      Content="{conv:Localize CacheFileLocally}" 
+                                                      VerticalAlignment="Center"
+                                                      Style="{StaticResource ModernCheckBoxStyle}"/>
                                             <TextBlock Text="(Stores a copy of the file)" 
                                                        FontSize="11" 
                                                        Foreground="{StaticResource TextSecondaryBrush}"
@@ -399,6 +416,14 @@
 
                                     <!-- Actions -->
                                     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="{conv:Localize Copy}" 
+                                                Command="{Binding DataContext.CopyItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource ModernButtonStyle}"
+                                                Background="#008272"
+                                                Padding="10,4"
+                                                FontSize="12"
+                                                Margin="0,0,5,0"/>
                                         <Button Content="{conv:Localize Delete}" 
                                                 Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"

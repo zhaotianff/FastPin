@@ -1,5 +1,6 @@
 using System.Windows;
 using FastPin.ViewModels;
+using FastPin.Services;
 
 namespace FastPin;
 
@@ -9,6 +10,7 @@ namespace FastPin;
 public partial class MainWindow : Window
 {
     private MainViewModel _viewModel;
+    private NotifyIconService _notifyIconService;
 
     public MainWindow()
     {
@@ -18,6 +20,10 @@ public partial class MainWindow : Window
         
         // Subscribe to hotkey event
         _viewModel.HotkeyPressed += ViewModel_HotkeyPressed;
+        
+        // Initialize notify icon
+        _notifyIconService = new NotifyIconService();
+        _notifyIconService.Initialize(_viewModel);
         
         Loaded += MainWindow_Loaded;
         Closed += MainWindow_Closed;
@@ -56,6 +62,7 @@ public partial class MainWindow : Window
     {
         _viewModel.StopClipboardMonitoring();
         _viewModel.StopHotkeyMonitoring();
+        _notifyIconService.Dispose();
     }
 
     private void DeleteButton_Click(object sender, RoutedEventArgs e)

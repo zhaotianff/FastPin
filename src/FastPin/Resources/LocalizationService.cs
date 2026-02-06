@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Resources;
+using System.ComponentModel;
 
 namespace FastPin.Resources
 {
@@ -10,6 +11,8 @@ namespace FastPin.Resources
     {
         private static ResourceManager? _resourceManager;
         private static CultureInfo? _currentCulture;
+        
+        public static event PropertyChangedEventHandler? PropertyChanged;
 
         static LocalizationService()
         {
@@ -29,6 +32,9 @@ namespace FastPin.Resources
                 _currentCulture = new CultureInfo(cultureName);
                 CultureInfo.CurrentUICulture = _currentCulture;
                 CultureInfo.CurrentCulture = _currentCulture;
+                
+                // Notify that culture has changed
+                OnPropertyChanged(nameof(GetString));
             }
             catch (CultureNotFoundException)
             {
@@ -36,12 +42,19 @@ namespace FastPin.Resources
                 _currentCulture = new CultureInfo("en-US");
                 CultureInfo.CurrentUICulture = _currentCulture;
                 CultureInfo.CurrentCulture = _currentCulture;
+                
+                OnPropertyChanged(nameof(GetString));
             }
         }
 
         public static CultureInfo GetCurrentCulture()
         {
             return _currentCulture ?? CultureInfo.CurrentUICulture;
+        }
+        
+        private static void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(null, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

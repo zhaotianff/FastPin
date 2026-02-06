@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
@@ -7,7 +8,7 @@ using FastPin.Resources;
 namespace FastPin.Converters
 {
     /// <summary>
-    /// Converter for accessing localized strings in XAML
+    /// Converter for accessing localized strings in XAML with dynamic updates
     /// </summary>
     public class LocalizeExtension : MarkupExtension
     {
@@ -24,7 +25,36 @@ namespace FastPin.Converters
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            return LocalizationService.GetString(Key);
+            var binding = new Binding("Value")
+            {
+                Source = new LocalizedString(Key),
+                Mode = BindingMode.OneWay
+            };
+            
+            return binding.ProvideValue(serviceProvider);
+        }
+    }
+
+    /// <summary>
+    /// Helper class to provide dynamic localized strings
+    /// </summary>
+    public class LocalizedString : INotifyPropertyChanged
+    {
+        private readonly string _key;
+
+        public LocalizedString(string key)
+        {
+            _key = key;
+            LocalizationService.PropertyChanged += (s, e) => OnPropertyChanged(nameof(Value));
+        }
+
+        public string Value => LocalizationService.GetString(_key);
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
