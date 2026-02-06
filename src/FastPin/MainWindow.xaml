@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:FastPin"
         xmlns:vm="clr-namespace:FastPin.ViewModels"
         xmlns:models="clr-namespace:FastPin.Models"
+        xmlns:conv="clr-namespace:FastPin.Converters"
         mc:Ignorable="d"
-        Title="FastPin - Pin Anything" Height="600" Width="900"
+        Title="{conv:Localize AppTitle}" Height="600" Width="900"
         Background="{StaticResource BackgroundBrush}"
         WindowStartupLocation="CenterScreen">
     
@@ -28,62 +29,117 @@
         <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="15,10" 
                 BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <!-- Search Box -->
-                <Grid Grid.Column="0" Margin="0,0,10,0">
+                <!-- First Row: Search and Action Buttons -->
+                <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" 
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource ModernTextBoxStyle}"
-                             FontSize="14">
-                        <TextBox.InputBindings>
-                            <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
-                        </TextBox.InputBindings>
-                    </TextBox>
-                    <TextBlock Grid.Column="0" Text="Search items..." 
-                               Margin="10,0,0,0" 
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource TextSecondaryBrush}"
-                               IsHitTestVisible="False">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SearchText}" Value="">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <Button Grid.Column="1" Content="✕" 
-                            Command="{Binding ClearSearchCommand}"
-                            Margin="5,0,0,0" Width="30"
-                            Style="{StaticResource ModernButtonStyle}"
-                            Visibility="{Binding SearchText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Search Box -->
+                    <Grid Grid.Column="0" Margin="0,0,10,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" 
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBoxStyle}"
+                                 FontSize="14">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <TextBlock Grid.Column="0" Text="{conv:Localize SearchPlaceholder}" 
+                                   Margin="10,0,0,0" 
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchText}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Button Grid.Column="1" Content="✕" 
+                                Command="{Binding ClearSearchCommand}"
+                                Margin="5,0,0,0" Width="30"
+                                Style="{StaticResource ModernButtonStyle}"
+                                Visibility="{Binding SearchText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </Grid>
+
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="{conv:Localize PinText}" Command="{Binding PinTextCommand}" 
+                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
+                        <Button Content="{conv:Localize PinImage}" Command="{Binding PinImageCommand}"
+                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
+                        <Button Content="{conv:Localize PinFile}" Command="{Binding PinFileCommand}"
+                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
+                        <CheckBox IsChecked="{Binding GroupByDate}" 
+                                  Content="{conv:Localize GroupByDate}" 
+                                  VerticalAlignment="Center"
+                                  Margin="15,0,0,0"
+                                  FontSize="12"/>
+                    </StackPanel>
                 </Grid>
 
-                <!-- Action Buttons -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="Pin Text" Command="{Binding PinTextCommand}" 
-                            Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                    <Button Content="Pin Image" Command="{Binding PinImageCommand}"
-                            Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                    <Button Content="Pin File" Command="{Binding PinFileCommand}"
-                            Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                    <CheckBox IsChecked="{Binding GroupByDate}" 
-                              Content="Group by Date" 
-                              VerticalAlignment="Center"
-                              Margin="15,0,0,0"
-                              FontSize="12"/>
-                </StackPanel>
+                <!-- Second Row: Filters -->
+                <Grid Grid.Row="1" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Date Picker -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0">
+                        <TextBlock Text="{conv:Localize FilterByDate}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+                        <DatePicker SelectedDate="{Binding SelectedDate}" Width="150" FontSize="12"/>
+                    </StackPanel>
+
+                    <!-- Type Filter -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,15,0">
+                        <TextBlock Text="{conv:Localize FilterByType}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+                        <ComboBox Width="120" FontSize="12" SelectedValue="{Binding SelectedItemType}">
+                            <ComboBox.Items>
+                                <ComboBoxItem Content="{conv:Localize All}" Tag="{x:Null}" IsSelected="True"/>
+                                <ComboBoxItem Content="{conv:Localize Text}" Tag="0"/>
+                                <ComboBoxItem Content="{conv:Localize Image}" Tag="1"/>
+                                <ComboBoxItem Content="{conv:Localize File}" Tag="2"/>
+                            </ComboBox.Items>
+                            <ComboBox.SelectedValuePath>Tag</ComboBox.SelectedValuePath>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Clear Filters Button -->
+                    <Button Grid.Column="2" Content="{conv:Localize ClearFilters}" 
+                            Command="{Binding ClearFiltersCommand}"
+                            Style="{StaticResource ModernButtonStyle}" 
+                            Background="#666666"
+                            FontSize="12" Padding="10,4"/>
+
+                    <!-- Language Switcher -->
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="15,0,0,0">
+                        <TextBlock Text="{conv:Localize Language}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+                        <ComboBox Width="100" FontSize="12" SelectedValue="{Binding CurrentLanguage}" SelectedValuePath="Tag">
+                            <ComboBoxItem Content="English" Tag="en-US" IsSelected="True"/>
+                            <ComboBoxItem Content="中文" Tag="zh-CN"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
             </Grid>
         </Border>
 
@@ -172,9 +228,9 @@
                                                                        Margin="0,5,0,0"/>
                                                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                                                 <CheckBox IsChecked="{Binding IsCached}" 
-                                                                          Content="Cache file locally" 
+                                                                          Content="{conv:Localize CacheFileLocally}" 
                                                                           VerticalAlignment="Center"/>
-                                                                <TextBlock Text="(Stores a copy of the file)" 
+                                                                <TextBlock Text="{conv:Localize StoresACopy}" 
                                                                            FontSize="11" 
                                                                            Foreground="{StaticResource TextSecondaryBrush}"
                                                                            Margin="10,0,0,0" 
@@ -213,7 +269,7 @@
 
                                                         <!-- Actions -->
                                                         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                                            <Button Content="Delete" 
+                                                            <Button Content="{conv:Localize Delete}" 
                                                                     Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding}"
                                                                     Style="{StaticResource ModernButtonStyle}"
@@ -343,7 +399,7 @@
 
                                     <!-- Actions -->
                                     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <Button Content="Delete" 
+                                        <Button Content="{conv:Localize Delete}" 
                                                 Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource ModernButtonStyle}"
@@ -370,21 +426,14 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <TextBlock Grid.Column="0">
-                    <Run Text="Total Items: "/>
-                </TextBlock>
+                <TextBlock Grid.Column="0" 
+                           Text="{conv:Localize HotkeyHint}" 
+                           Foreground="{StaticResource TextSecondaryBrush}"/>
                 
                 <TextBlock Grid.Column="1" 
-                           Text="{Binding GroupByDate, StringFormat='View: {0}'}" 
-                           Margin="0,0,15,0"
-                           Foreground="{StaticResource TextSecondaryBrush}"
-                           Visibility="Collapsed"/>
-                
-                <TextBlock Grid.Column="2" 
-                           Text="Clipboard monitoring active" 
+                           Text="{conv:Localize ClipboardMonitoringActive}" 
                            Foreground="{StaticResource PrimaryBrush}"/>
             </Grid>
         </Border>

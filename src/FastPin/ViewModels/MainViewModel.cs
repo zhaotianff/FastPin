@@ -22,10 +22,14 @@ namespace FastPin.ViewModels
     {
         private readonly FastPinDbContext _dbContext;
         private readonly ClipboardMonitorService _clipboardMonitor;
+        private readonly HotkeyService _hotkeyService;
         private string _searchText = string.Empty;
         private string _newTagName = string.Empty;
         private PinnedItemViewModel? _selectedItem;
         private bool _groupByDate = true;
+        private ItemType? _selectedItemType = null;
+        private DateTime? _selectedDate = null;
+        private string _currentLanguage = "en-US";
 
         public MainViewModel()
         {
@@ -35,6 +39,9 @@ namespace FastPin.ViewModels
             _clipboardMonitor = new ClipboardMonitorService();
             _clipboardMonitor.ClipboardChanged += OnClipboardChanged;
 
+            _hotkeyService = new HotkeyService();
+            _hotkeyService.HotkeyPressed += OnHotkeyPressed;
+
             // Initialize commands
             PinTextCommand = new RelayCommand(PinText);
             PinImageCommand = new RelayCommand(PinImage);
@@ -43,6 +50,8 @@ namespace FastPin.ViewModels
             AddTagCommand = new RelayCommand(AddTag, () => !string.IsNullOrWhiteSpace(NewTagName));
             ClearSearchCommand = new RelayCommand(ClearSearch);
             ToggleGroupingCommand = new RelayCommand(ToggleGrouping);
+            ClearFiltersCommand = new RelayCommand(ClearFilters);
+            ChangeLanguageCommand = new RelayCommand<string>(ChangeLanguage);
 
             LoadItems();
             LoadAllTags();
@@ -88,6 +97,30 @@ namespace FastPin.ViewModels
             set => SetProperty(ref _newTagName, value);
         }
 
+        public ItemType? SelectedItemType
+        {
+            get => _selectedItemType;
+            set
+            {
+                if (SetProperty(ref _selectedItemType, value))
+                {
+                    LoadItems();
+                }
+            }
+        }
+
+        public DateTime? SelectedDate
+        {
+            get => _selectedDate;
+            set
+            {
+                if (SetProperty(ref _selectedDate, value))
+                {
+                    LoadItems();
+                }
+            }
+        }
+
         public ICommand PinTextCommand { get; }
         public ICommand PinImageCommand { get; }
         public ICommand PinFileCommand { get; }
@@ -95,6 +128,31 @@ namespace FastPin.ViewModels
         public ICommand AddTagCommand { get; }
         public ICommand ClearSearchCommand { get; }
         public ICommand ToggleGroupingCommand { get; }
+        public ICommand ClearFiltersCommand { get; }
+        public ICommand ChangeLanguageCommand { get; }
+
+        public string CurrentLanguage
+        {
+            get => _currentLanguage;
+            set
+            {
+                if (SetProperty(ref _currentLanguage, value))
+                {
+                    ChangeLanguage(value);
+                }
+            }
+        }
+
+        private void ChangeLanguage(string? cultureName)
+        {
+            if (string.IsNullOrEmpty(cultureName))
+                return;
+
+            FastPin.Resources.LocalizationService.SetCulture(cultureName);
+            
+            // Reload items to update date group labels
+            LoadItems();
+        }
 
         private void OnClipboardChanged(object? sender, EventArgs e)
         {
@@ -276,8 +334,8 @@ namespace FastPin.ViewModels
             try
             {
                 var result = MessageBox.Show(
-                    "Are you sure you want to delete this item?",
-                    "Confirm Delete",
+                    FastPin.Resources.LocalizationService.GetString("DeleteConfirmation"),
+                    FastPin.Resources.LocalizationService.GetString("ConfirmDelete"),
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
 
@@ -294,7 +352,10 @@ namespace FastPin.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error deleting item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"{FastPin.Resources.LocalizationService.GetString("Error")}: {ex.Message}", 
+                    FastPin.Resources.LocalizationService.GetString("Error"), 
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Error);
             }
         }
 
@@ -370,6 +431,20 @@ namespace FastPin.ViewModels
                     p.ItemTags.Any(it => it.Tag.Name.ToLower().Contains(search)));
             }
 
+            // Filter by item type
+            if (SelectedItemType.HasValue)
+            {
+                query = query.Where(p => p.Type == SelectedItemType.Value);
+            }
+
+            // Filter by date
+            if (SelectedDate.HasValue)
+            {
+                var selectedDay = SelectedDate.Value.Date;
+                var nextDay = selectedDay.AddDays(1);
+                query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
+            }
+
             var items = query
                 .OrderByDescending(p => p.CreatedDate)
                 .ToList();
@@ -412,13 +487,13 @@ namespace FastPin.ViewModels
             var yesterday = today.AddDays(-1);
 
             if (date.Date == today)
-                return "Today";
+                return FastPin.Resources.LocalizationService.GetString("Today");
             else if (date.Date == yesterday)
-                return "Yesterday";
+                return FastPin.Resources.LocalizationService.GetString("Yesterday");
             else if (date > today.AddDays(-7))
-                return "This Week";
+                return FastPin.Resources.LocalizationService.GetString("ThisWeek");
             else if (date > today.AddDays(-30))
-                return "This Month";
+                return FastPin.Resources.LocalizationService.GetString("ThisMonth");
             else if (date.Year == today.Year)
                 return date.ToString("MMMM yyyy");
             else
@@ -445,6 +520,13 @@ namespace FastPin.ViewModels
             SearchText = string.Empty;
         }
 
+        private void ClearFilters()
+        {
+            SelectedItemType = null;
+            SelectedDate = null;
+            SearchText = string.Empty;
+        }
+
         public void StartClipboardMonitoring()
         {
             _clipboardMonitor.Start();
@@ -454,5 +536,23 @@ namespace FastPin.ViewModels
         {
             _clipboardMonitor.Stop();
         }
+
+        public void StartHotkeyMonitoring()
+        {
+            _hotkeyService.RegisterHotkey();
+        }
+
+        public void StopHotkeyMonitoring()
+        {
+            _hotkeyService.UnregisterHotkey();
+        }
+
+        private void OnHotkeyPressed(object? sender, EventArgs e)
+        {
+            // Raise event to show quick pin menu (handled in View)
+            HotkeyPressed?.Invoke(this, EventArgs.Empty);
+        }
+
+        public event EventHandler? HotkeyPressed;
     }
 }

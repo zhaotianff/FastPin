@@ -9,12 +9,16 @@ FastPin is a modern WPF application that allows you to quickly pin text, images,
 - **Multi-Type Support**: Pin text, images, and files
 - **SQLite Database**: All data is persisted in a local SQLite database
 - **MVVM Architecture**: Clean separation of concerns using the Model-View-ViewModel pattern
+- **Global Hotkey**: Press Ctrl+Shift+P to open quick pin menu at mouse cursor
+- **Multi-Language Support**: Switch between English and Chinese (中文)
 
 ### Organization
 - **Tagging**: Add custom tags to pinned items for better organization
 - **Search**: Quickly find items by searching text content, file names, or tags
 - **Grouping**: View items grouped by date (Today, Yesterday, This Week, This Month, etc.)
 - **Flexible View**: Toggle between grouped and ungrouped views
+- **Date Filtering**: Use the date picker to view items from a specific date
+- **Type Filtering**: Filter items by type (All, Text, Image, File)
 
 ### File Handling
 - **Link Mode**: Store only the file path without copying the file
@@ -47,13 +51,19 @@ The database includes:
 2. **Pin Items**:
    - Copy text, images, or files to clipboard
    - Items are automatically detected (or use the Pin buttons in the toolbar)
-3. **Organize**:
+   - **Quick Pin Menu**: Press Ctrl+Shift+P to open a quick menu at your mouse cursor
+3. **Filter and Search**:
+   - Use the search box to filter items by text, file names, or tags
+   - Use the date picker to view items from a specific date
+   - Filter by type (All, Text, Image, File) to view specific content types
+   - Click "Clear Filters" to reset all filters
+4. **Organize**:
    - Add tags to items for categorization
-   - Use the search box to filter items
    - Toggle "Group by Date" to organize items chronologically
-4. **Manage Files**:
+5. **Manage Files**:
    - For file items, use the "Cache file locally" checkbox to switch between link and cache modes
-5. **Delete**: Click the Delete button on any item to remove it
+6. **Delete**: Click the Delete button on any item to remove it
+7. **Change Language**: Use the language dropdown in the toolbar to switch between English and Chinese
 
 ## Building
 
@@ -83,6 +93,8 @@ dotnet run
 
 ### Services
 - `ClipboardMonitorService`: Monitors Windows clipboard for changes
+- `HotkeyService`: Registers and handles global hotkeys (Ctrl+Shift+P)
+- `LocalizationService`: Manages multi-language support and resource strings
 
 ### Data Layer
 - `FastPinDbContext`: Entity Framework Core DbContext for SQLite database operations
