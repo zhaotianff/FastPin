@@ -37,24 +37,40 @@ namespace FastPin.Converters
 
     /// <summary>
     /// Helper class to provide dynamic localized strings
+    /// Implements IDisposable to properly clean up event subscriptions
     /// </summary>
-    public class LocalizedString : INotifyPropertyChanged
+    public class LocalizedString : INotifyPropertyChanged, IDisposable
     {
         private readonly string _key;
+        private bool _disposed;
 
         public LocalizedString(string key)
         {
             _key = key;
-            LocalizationService.PropertyChanged += (s, e) => OnPropertyChanged(nameof(Value));
+            LocalizationService.PropertyChanged += OnLocalizationChanged;
         }
 
         public string Value => LocalizationService.GetString(_key);
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private void OnLocalizationChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Value));
+        }
+
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                LocalizationService.PropertyChanged -= OnLocalizationChanged;
+                _disposed = true;
+            }
         }
     }
 

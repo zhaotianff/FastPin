@@ -303,9 +303,9 @@ namespace FastPin.ViewModels
                 if (files == null || files.Count == 0)
                     return;
 
-                foreach (string filePath in files)
+                foreach (string? filePath in files)
                 {
-                    if (!File.Exists(filePath))
+                    if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
                         continue;
 
                     var item = new PinnedItem

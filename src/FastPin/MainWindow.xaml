@@ -377,7 +377,7 @@
                                                       Content="{conv:Localize CacheFileLocally}" 
                                                       VerticalAlignment="Center"
                                                       Style="{StaticResource ModernCheckBoxStyle}"/>
-                                            <TextBlock Text="(Stores a copy of the file)" 
+                                            <TextBlock Text="{conv:Localize StoresACopy}" 
                                                        FontSize="11" 
                                                        Foreground="{StaticResource TextSecondaryBrush}"
                                                        Margin="10,0,0,0" 

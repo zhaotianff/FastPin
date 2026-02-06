@@ -1,4 +1,6 @@
+using System;
 using System.Windows;
+using System.Windows.Threading;
 using FastPin.ViewModels;
 
 namespace FastPin.Services
@@ -9,6 +11,7 @@ namespace FastPin.Services
     public partial class ClipboardPreviewWindow : Window
     {
         private MainViewModel _viewModel;
+        private DispatcherTimer? _closeTimer;
 
         public ClipboardPreviewWindow(MainViewModel viewModel)
         {
@@ -30,17 +33,22 @@ namespace FastPin.Services
         private void Window_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             // Close window after a short delay when mouse leaves
-            var timer = new System.Windows.Threading.DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.5);
-            timer.Tick += (s, args) =>
+            // Stop and dispose existing timer to prevent resource accumulation
+            _closeTimer?.Stop();
+            _closeTimer = null;
+            
+            _closeTimer = new DispatcherTimer();
+            _closeTimer.Interval = TimeSpan.FromSeconds(0.5);
+            _closeTimer.Tick += (s, args) =>
             {
-                timer.Stop();
+                _closeTimer?.Stop();
+                _closeTimer = null;
                 if (!IsMouseOver)
                 {
                     Close();
                 }
             };
-            timer.Start();
+            _closeTimer.Start();
         }
     }
 }
