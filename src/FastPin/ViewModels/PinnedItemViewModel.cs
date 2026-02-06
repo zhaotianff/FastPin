@@ -112,8 +112,10 @@ namespace FastPin.ViewModels
                 if (_model.IsCached != value)
                 {
                     _model.IsCached = value;
-                    _model.ModifiedDate = DateTime.Now;
                     OnPropertyChanged();
+                    
+                    // Trigger file caching through the parent ViewModel
+                    // This will be handled in the MainWindow code-behind
                 }
             }
         }

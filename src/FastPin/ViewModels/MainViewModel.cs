@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using FastPin.Commands;
@@ -24,6 +25,7 @@ namespace FastPin.ViewModels
         private string _searchText = string.Empty;
         private string _newTagName = string.Empty;
         private PinnedItemViewModel? _selectedItem;
+        private bool _groupByDate = true;
 
         public MainViewModel()
         {
@@ -40,13 +42,27 @@ namespace FastPin.ViewModels
             DeleteItemCommand = new RelayCommand(DeleteItem, () => SelectedItem != null);
             AddTagCommand = new RelayCommand(AddTag, () => !string.IsNullOrWhiteSpace(NewTagName));
             ClearSearchCommand = new RelayCommand(ClearSearch);
+            ToggleGroupingCommand = new RelayCommand(ToggleGrouping);
 
             LoadItems();
             LoadAllTags();
         }
 
         public ObservableCollection<PinnedItemViewModel> Items { get; } = new ObservableCollection<PinnedItemViewModel>();
+        public ObservableCollection<ItemGroup> GroupedItems { get; } = new ObservableCollection<ItemGroup>();
         public ObservableCollection<string> AllTags { get; } = new ObservableCollection<string>();
+
+        public bool GroupByDate
+        {
+            get => _groupByDate;
+            set
+            {
+                if (SetProperty(ref _groupByDate, value))
+                {
+                    LoadItems();
+                }
+            }
+        }
 
         public PinnedItemViewModel? SelectedItem
         {
@@ -78,6 +94,7 @@ namespace FastPin.ViewModels
         public ICommand DeleteItemCommand { get; }
         public ICommand AddTagCommand { get; }
         public ICommand ClearSearchCommand { get; }
+        public ICommand ToggleGroupingCommand { get; }
 
         private void OnClipboardChanged(object? sender, EventArgs e)
         {
@@ -212,6 +229,45 @@ namespace FastPin.ViewModels
             }
         }
 
+        public void ToggleFileCache(PinnedItemViewModel itemViewModel)
+        {
+            try
+            {
+                var item = _dbContext.PinnedItems.Find(itemViewModel.Id);
+                if (item == null || item.Type != ItemType.File)
+                    return;
+
+                if (itemViewModel.IsCached)
+                {
+                    // Cache the file
+                    if (!string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
+                    {
+                        item.CachedFileData = File.ReadAllBytes(item.FilePath);
+                        MessageBox.Show("File cached successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("File not found. Cannot cache.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        itemViewModel.IsCached = false;
+                        return;
+                    }
+                }
+                else
+                {
+                    // Clear cached data
+                    item.CachedFileData = null;
+                }
+
+                item.IsCached = itemViewModel.IsCached;
+                item.ModifiedDate = DateTime.Now;
+                _dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error toggling file cache: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void DeleteItem()
         {
             if (SelectedItem == null)
@@ -298,6 +354,7 @@ namespace FastPin.ViewModels
         private void LoadItems()
         {
             Items.Clear();
+            GroupedItems.Clear();
 
             var query = _dbContext.PinnedItems
                 .Include(p => p.ItemTags)
@@ -317,10 +374,60 @@ namespace FastPin.ViewModels
                 .OrderByDescending(p => p.CreatedDate)
                 .ToList();
 
-            foreach (var item in items)
+            if (GroupByDate)
             {
-                Items.Add(new PinnedItemViewModel(item));
+                // Group items by date
+                var groups = items
+                    .GroupBy(p => GetDateGroup(p.CreatedDate))
+                    .OrderByDescending(g => g.First().CreatedDate);
+
+                foreach (var group in groups)
+                {
+                    var itemGroup = new ItemGroup
+                    {
+                        DateGroup = group.Key
+                    };
+
+                    foreach (var item in group)
+                    {
+                        itemGroup.Items.Add(new PinnedItemViewModel(item));
+                    }
+
+                    GroupedItems.Add(itemGroup);
+                }
             }
+            else
+            {
+                // Load items without grouping
+                foreach (var item in items)
+                {
+                    Items.Add(new PinnedItemViewModel(item));
+                }
+            }
+        }
+
+        private string GetDateGroup(DateTime date)
+        {
+            var today = DateTime.Today;
+            var yesterday = today.AddDays(-1);
+
+            if (date.Date == today)
+                return "Today";
+            else if (date.Date == yesterday)
+                return "Yesterday";
+            else if (date > today.AddDays(-7))
+                return "This Week";
+            else if (date > today.AddDays(-30))
+                return "This Month";
+            else if (date.Year == today.Year)
+                return date.ToString("MMMM yyyy");
+            else
+                return date.ToString("yyyy");
+        }
+
+        private void ToggleGrouping()
+        {
+            GroupByDate = !GroupByDate;
         }
 
         private void LoadAllTags()
