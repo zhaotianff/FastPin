@@ -361,6 +361,10 @@ namespace FastPin.ViewModels
             if (itemViewModel == null)
                 return;
 
+            // Capture the IsCached value on the UI thread to avoid race conditions
+            var isCached = itemViewModel.IsCached;
+            var itemId = itemViewModel.Id;
+
             try
             {
                 await Task.Run(() =>
@@ -368,11 +372,11 @@ namespace FastPin.ViewModels
                     // Create a new DbContext for thread-safety
                     using var dbContext = new FastPinDbContext();
                     
-                    var item = dbContext.PinnedItems.Find(itemViewModel.Id);
+                    var item = dbContext.PinnedItems.Find(itemId);
                     if (item == null || item.Type != ItemType.File)
                         return;
 
-                    if (itemViewModel.IsCached)
+                    if (isCached)
                     {
                         // Cache the file
                         if (!string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
@@ -395,7 +399,7 @@ namespace FastPin.ViewModels
                         item.CachedFileData = null;
                     }
 
-                    item.IsCached = itemViewModel.IsCached;
+                    item.IsCached = isCached;
                     item.ModifiedDate = DateTime.Now;
                     dbContext.SaveChanges();
                 });
