@@ -182,12 +182,13 @@ namespace FastPin.ViewModels
         {
             get
             {
-                var parts = new List<string>();
-                if (!string.IsNullOrEmpty(ImageDimensionsFormatted))
-                    parts.Add(ImageDimensionsFormatted);
-                if (!string.IsNullOrEmpty(FileSizeFormatted))
-                    parts.Add(FileSizeFormatted);
-                return string.Join(" • ", parts);
+                if (ImageWidth.HasValue && ImageHeight.HasValue && FileSize.HasValue)
+                    return $"{ImageWidth}x{ImageHeight} • {FileSizeFormatted}";
+                else if (ImageWidth.HasValue && ImageHeight.HasValue)
+                    return $"{ImageWidth}x{ImageHeight}";
+                else if (FileSize.HasValue)
+                    return FileSizeFormatted;
+                return string.Empty;
             }
         }
 
