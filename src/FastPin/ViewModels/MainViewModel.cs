@@ -261,6 +261,7 @@ namespace FastPin.ViewModels
                 {
                     Type = ItemType.Text,
                     TextContent = text,
+                    Source = ItemSource.Clipboard,
                     CreatedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now
                 };
@@ -301,6 +302,10 @@ namespace FastPin.ViewModels
                 {
                     Type = ItemType.Image,
                     ImageData = imageData,
+                    ImageWidth = image.PixelWidth,
+                    ImageHeight = image.PixelHeight,
+                    FileSize = imageData.Length,
+                    Source = ItemSource.Clipboard,
                     CreatedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now
                 };
@@ -333,11 +338,14 @@ namespace FastPin.ViewModels
                     if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
                         continue;
 
+                    var fileInfo = new FileInfo(filePath);
                     var item = new PinnedItem
                     {
                         Type = ItemType.File,
                         FilePath = filePath,
                         FileName = Path.GetFileName(filePath),
+                        FileSize = fileInfo.Length,
+                        Source = ItemSource.Clipboard,
                         IsCached = false, // Default to link mode
                         CreatedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now
@@ -431,7 +439,9 @@ namespace FastPin.ViewModels
                 {
                     _dbContext.PinnedItems.Remove(item);
                     _dbContext.SaveChanges();
-                    Items.Remove(itemToDelete);
+                    
+                    // Reload items to refresh both grouped and ungrouped views
+                    LoadItems();
                 }
             }
             catch (Exception ex)

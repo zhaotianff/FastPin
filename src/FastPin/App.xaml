@@ -9,6 +9,7 @@
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
         <converters:ItemTypeToVisibilityConverter x:Key="ItemTypeToVisibilityConverter"/>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         
         <!-- Modern Fluent Design Colors -->
         <SolidColorBrush x:Key="PrimaryBrush" Color="#0078D4"/>
