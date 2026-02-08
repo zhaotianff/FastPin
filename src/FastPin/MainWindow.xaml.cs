@@ -65,12 +65,15 @@ public partial class MainWindow : Window
         _notifyIconService.Dispose();
     }
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    private async void CacheCheckBox_Changed(object sender, RoutedEventArgs e)
     {
-        if (sender is System.Windows.Controls.Button button)
+        if (sender is System.Windows.Controls.CheckBox checkBox)
         {
-            _viewModel.SelectedItem = button.DataContext as PinnedItemViewModel;
-            _viewModel.DeleteItemCommand.Execute(null);
+            var itemViewModel = checkBox.DataContext as PinnedItemViewModel;
+            if (itemViewModel != null)
+            {
+                await _viewModel.ToggleFileCacheAsync(itemViewModel);
+            }
         }
     }
 }

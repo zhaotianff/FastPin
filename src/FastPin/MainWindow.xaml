@@ -234,7 +234,9 @@
                                                                 <CheckBox IsChecked="{Binding IsCached}" 
                                                                           Content="{conv:Localize CacheFileLocally}" 
                                                                           VerticalAlignment="Center"
-                                                                          Style="{StaticResource ModernCheckBoxStyle}"/>
+                                                                          Style="{StaticResource ModernCheckBoxStyle}"
+                                                                          Checked="CacheCheckBox_Changed"
+                                                                          Unchecked="CacheCheckBox_Changed"/>
                                                                 <TextBlock Text="{conv:Localize StoresACopy}" 
                                                                            FontSize="11" 
                                                                            Foreground="{StaticResource TextSecondaryBrush}"
@@ -288,8 +290,7 @@
                                                                     Style="{StaticResource ModernButtonStyle}"
                                                                     Background="#D13438"
                                                                     Padding="10,4"
-                                                                    FontSize="12"
-                                                                    Click="DeleteButton_Click"/>
+                                                                    FontSize="12"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Grid>
@@ -376,7 +377,9 @@
                                             <CheckBox IsChecked="{Binding IsCached}" 
                                                       Content="{conv:Localize CacheFileLocally}" 
                                                       VerticalAlignment="Center"
-                                                      Style="{StaticResource ModernCheckBoxStyle}"/>
+                                                      Style="{StaticResource ModernCheckBoxStyle}"
+                                                      Checked="CacheCheckBox_Changed"
+                                                      Unchecked="CacheCheckBox_Changed"/>
                                             <TextBlock Text="{conv:Localize StoresACopy}" 
                                                        FontSize="11" 
                                                        Foreground="{StaticResource TextSecondaryBrush}"
@@ -430,8 +433,7 @@
                                                 Style="{StaticResource ModernButtonStyle}"
                                                 Background="#D13438"
                                                 Padding="10,4"
-                                                FontSize="12"
-                                                Click="DeleteButton_Click"/>
+                                                FontSize="12"/>
                                     </StackPanel>
                                 </Grid>
                             </Grid>

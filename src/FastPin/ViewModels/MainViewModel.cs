@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -53,7 +54,7 @@ namespace FastPin.ViewModels
             PinTextCommand = new RelayCommand(PinText);
             PinImageCommand = new RelayCommand(PinImage);
             PinFileCommand = new RelayCommand(PinFile);
-            DeleteItemCommand = new RelayCommand(DeleteItem, () => SelectedItem != null);
+            DeleteItemCommand = new RelayCommand<PinnedItemViewModel>(DeleteItem, item => item != null);
             AddTagCommand = new RelayCommand(AddTag, () => !string.IsNullOrWhiteSpace(NewTagName));
             ClearSearchCommand = new RelayCommand(ClearSearch);
             ToggleGroupingCommand = new RelayCommand(ToggleGrouping);
@@ -355,38 +356,53 @@ namespace FastPin.ViewModels
             }
         }
 
-        public void ToggleFileCache(PinnedItemViewModel itemViewModel)
+        public async Task ToggleFileCacheAsync(PinnedItemViewModel? itemViewModel)
         {
+            if (itemViewModel == null)
+                return;
+
+            // Capture the IsCached value on the UI thread to avoid race conditions
+            var isCached = itemViewModel.IsCached;
+            var itemId = itemViewModel.Id;
+
             try
             {
-                var item = _dbContext.PinnedItems.Find(itemViewModel.Id);
-                if (item == null || item.Type != ItemType.File)
-                    return;
-
-                if (itemViewModel.IsCached)
+                await Task.Run(() =>
                 {
-                    // Cache the file
-                    if (!string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
+                    // Create a new DbContext for thread-safety
+                    using var dbContext = new FastPinDbContext();
+                    
+                    var item = dbContext.PinnedItems.Find(itemId);
+                    if (item == null || item.Type != ItemType.File)
+                        return;
+
+                    if (isCached)
                     {
-                        item.CachedFileData = File.ReadAllBytes(item.FilePath);
-                        MessageBox.Show("File cached successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        // Cache the file
+                        if (!string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
+                        {
+                            item.CachedFileData = File.ReadAllBytes(item.FilePath);
+                        }
+                        else
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                MessageBox.Show("File not found. Cannot cache.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                itemViewModel.IsCached = false;
+                            });
+                            return;
+                        }
                     }
                     else
                     {
-                        MessageBox.Show("File not found. Cannot cache.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        itemViewModel.IsCached = false;
-                        return;
+                        // Clear cached data
+                        item.CachedFileData = null;
                     }
-                }
-                else
-                {
-                    // Clear cached data
-                    item.CachedFileData = null;
-                }
 
-                item.IsCached = itemViewModel.IsCached;
-                item.ModifiedDate = DateTime.Now;
-                _dbContext.SaveChanges();
+                    item.IsCached = isCached;
+                    item.ModifiedDate = DateTime.Now;
+                    dbContext.SaveChanges();
+                });
             }
             catch (Exception ex)
             {
@@ -394,9 +410,9 @@ namespace FastPin.ViewModels
             }
         }
 
-        private void DeleteItem()
+        private void DeleteItem(PinnedItemViewModel? itemToDelete)
         {
-            if (SelectedItem == null)
+            if (itemToDelete == null)
                 return;
 
             try
@@ -410,12 +426,12 @@ namespace FastPin.ViewModels
                 if (result != MessageBoxResult.Yes)
                     return;
 
-                var item = _dbContext.PinnedItems.Find(SelectedItem.Id);
+                var item = _dbContext.PinnedItems.Find(itemToDelete.Id);
                 if (item != null)
                 {
                     _dbContext.PinnedItems.Remove(item);
                     _dbContext.SaveChanges();
-                    Items.Remove(SelectedItem);
+                    Items.Remove(itemToDelete);
                 }
             }
             catch (Exception ex)
