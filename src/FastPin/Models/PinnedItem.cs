@@ -61,6 +61,26 @@ namespace FastPin.Models
         /// Tags associated with this item
         /// </summary>
         public virtual ICollection<ItemTag> ItemTags { get; set; } = new List<ItemTag>();
+
+        /// <summary>
+        /// Width of the image (for image items)
+        /// </summary>
+        public int? ImageWidth { get; set; }
+
+        /// <summary>
+        /// Height of the image (for image items)
+        /// </summary>
+        public int? ImageHeight { get; set; }
+
+        /// <summary>
+        /// File size in bytes (for image and file items)
+        /// </summary>
+        public long? FileSize { get; set; }
+
+        /// <summary>
+        /// Source of the pinned item (e.g., Clipboard, Manual)
+        /// </summary>
+        public ItemSource Source { get; set; } = ItemSource.Clipboard;
     }
 
     /// <summary>
@@ -71,5 +91,15 @@ namespace FastPin.Models
         Text = 0,
         Image = 1,
         File = 2
+    }
+
+    /// <summary>
+    /// Enum for the source of pinned items
+    /// </summary>
+    public enum ItemSource
+    {
+        Clipboard = 0,
+        Manual = 1,
+        Unknown = 2
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -139,6 +140,57 @@ namespace FastPin.ViewModels
         public ObservableCollection<string> Tags { get; } = new ObservableCollection<string>();
 
         public PinnedItem Model => _model;
+
+        public int? ImageWidth => _model.ImageWidth;
+
+        public int? ImageHeight => _model.ImageHeight;
+
+        public long? FileSize => _model.FileSize;
+
+        public ItemSource Source => _model.Source;
+
+        public string FileSizeFormatted
+        {
+            get
+            {
+                if (!FileSize.HasValue)
+                    return string.Empty;
+
+                double size = FileSize.Value;
+                string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+                int order = 0;
+                while (size >= 1024 && order < sizes.Length - 1)
+                {
+                    order++;
+                    size = size / 1024;
+                }
+                return $"{size:0.##} {sizes[order]}";
+            }
+        }
+
+        public string ImageDimensionsFormatted
+        {
+            get
+            {
+                if (ImageWidth.HasValue && ImageHeight.HasValue)
+                    return $"{ImageWidth}x{ImageHeight}";
+                return string.Empty;
+            }
+        }
+
+        public string ImageMetadata
+        {
+            get
+            {
+                if (ImageWidth.HasValue && ImageHeight.HasValue && FileSize.HasValue)
+                    return $"{ImageWidth}x{ImageHeight} • {FileSizeFormatted}";
+                else if (ImageWidth.HasValue && ImageHeight.HasValue)
+                    return $"{ImageWidth}x{ImageHeight}";
+                else if (FileSize.HasValue)
+                    return FileSizeFormatted;
+                return string.Empty;
+            }
+        }
 
         private void LoadTags()
         {
