@@ -76,4 +76,15 @@ public partial class MainWindow : Window
             }
         }
     }
+
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        var configWindow = new ConfigWindow();
+        if (configWindow.ShowDialog() == true)
+        {
+            // Settings were saved, apply language change
+            var settings = Models.AppSettings.Load();
+            _viewModel.CurrentLanguage = settings.Language;
+        }
+    }
 }
