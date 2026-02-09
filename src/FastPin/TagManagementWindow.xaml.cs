@@ -8,15 +8,24 @@ namespace FastPin
     /// </summary>
     public partial class TagManagementWindow : Window
     {
+        private readonly TagManagementViewModel _viewModel;
+
         public TagManagementWindow()
         {
             InitializeComponent();
-            DataContext = new TagManagementViewModel();
+            _viewModel = new TagManagementViewModel();
+            DataContext = _viewModel;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        protected override void OnClosed(System.EventArgs e)
+        {
+            base.OnClosed(e);
+            _viewModel?.Dispose();
         }
     }
 }

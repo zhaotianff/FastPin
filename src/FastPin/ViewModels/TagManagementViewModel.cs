@@ -13,7 +13,7 @@ namespace FastPin.ViewModels
     /// <summary>
     /// ViewModel for Tag Management window
     /// </summary>
-    public class TagManagementViewModel : ViewModelBase
+    public class TagManagementViewModel : ViewModelBase, IDisposable
     {
         private readonly FastPinDbContext _dbContext;
         private TagViewModel? _selectedTag;
@@ -216,6 +216,11 @@ namespace FastPin.ViewModels
             {
                 MessageBox.Show($"Error deleting tag: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public void Dispose()
+        {
+            _dbContext?.Dispose();
         }
     }
 }

@@ -46,7 +46,7 @@ namespace FastPin.ViewModels
         public MainViewModel()
         {
             _dbContext = new FastPinDbContext();
-            _dbContext.Database.EnsureCreated();
+            DatabaseInitializer.Initialize(_dbContext);
 
             _clipboardMonitor = new ClipboardMonitorService();
             _clipboardMonitor.ClipboardChanged += OnClipboardChanged;
