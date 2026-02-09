@@ -57,6 +57,12 @@ namespace FastPin
 
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
+            // Get mouse position relative to the image before zooming
+            var mousePosition = e.GetPosition(ImageControl);
+            
+            // Calculate the old zoom level
+            double oldZoom = _currentZoom;
+            
             // Zoom image with mouse wheel
             if (e.Delta > 0)
             {
@@ -69,6 +75,17 @@ namespace FastPin
 
             ImageScaleTransform.ScaleX = _currentZoom;
             ImageScaleTransform.ScaleY = _currentZoom;
+
+            // Adjust scroll position to zoom toward cursor
+            if (ImageScrollViewer.ScrollableWidth > 0 || ImageScrollViewer.ScrollableHeight > 0)
+            {
+                double zoomRatio = _currentZoom / oldZoom;
+                double offsetX = (ImageScrollViewer.HorizontalOffset + mousePosition.X) * zoomRatio - mousePosition.X;
+                double offsetY = (ImageScrollViewer.VerticalOffset + mousePosition.Y) * zoomRatio - mousePosition.Y;
+                
+                ImageScrollViewer.ScrollToHorizontalOffset(offsetX);
+                ImageScrollViewer.ScrollToVerticalOffset(offsetY);
+            }
 
             e.Handled = true;
         }

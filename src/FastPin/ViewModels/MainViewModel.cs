@@ -32,6 +32,10 @@ namespace FastPin.ViewModels
         private DateTime? _selectedDate = null;
         private string _currentLanguage = "en-US";
         
+        // Supported image file extensions for clipboard conversion
+        private static readonly string[] SupportedImageExtensions = 
+            { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".ico", ".webp" };
+        
         // Clipboard preview data
         private string? _clipboardPreviewText;
         private byte[]? _clipboardPreviewImage;
@@ -232,10 +236,9 @@ namespace FastPin.ViewModels
                         if (!string.IsNullOrEmpty(filePath))
                         {
                             // Check if the file is an image
-                            var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".ico", ".webp" };
                             var extension = Path.GetExtension(filePath).ToLowerInvariant();
                             
-                            if (imageExtensions.Contains(extension) && File.Exists(filePath))
+                            if (SupportedImageExtensions.Contains(extension) && File.Exists(filePath))
                             {
                                 // Handle as image content rather than file
                                 try

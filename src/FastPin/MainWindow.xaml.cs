@@ -11,6 +11,9 @@ public partial class MainWindow : Window
 {
     private MainViewModel _viewModel;
     private NotifyIconService _notifyIconService;
+    
+    private const string MaximizeSymbol = "□";
+    private const string RestoreSymbol = "❐";
 
     public MainWindow()
     {
@@ -98,12 +101,12 @@ public partial class MainWindow : Window
         if (WindowState == WindowState.Maximized)
         {
             WindowState = WindowState.Normal;
-            MaximizeRestoreButton.Content = "□";
+            MaximizeRestoreButton.Content = MaximizeSymbol;
         }
         else
         {
             WindowState = WindowState.Maximized;
-            MaximizeRestoreButton.Content = "❐";
+            MaximizeRestoreButton.Content = RestoreSymbol;
         }
     }
 
