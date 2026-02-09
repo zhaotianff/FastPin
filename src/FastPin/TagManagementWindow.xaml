@@ -1,0 +1,293 @@
+<Window x:Class="FastPin.TagManagementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FastPin"
+        xmlns:conv="clr-namespace:FastPin.Converters"
+        mc:Ignorable="d"
+        Title="{conv:Localize TagManagement}" Height="500" Width="700"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        ResizeMode="CanResize">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40"
+                      ResizeBorderThickness="5"
+                      GlassFrameThickness="1"
+                      CornerRadius="0"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="20,15">
+            <Grid>
+                <TextBlock Text="{conv:Localize TagManagement}" FontSize="18" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                
+                <!-- Custom Window Control Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="✕" 
+                            Click="CloseButton_Click"
+                            Width="40" Height="30"
+                            Foreground="White"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="16"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" BorderThickness="0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D13438"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Tag List -->
+            <Border Grid.Column="0" 
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="{conv:Localize AllTags}" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Margin="15,10"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Tags}"
+                             SelectedItem="{Binding SelectedTag}"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Margin="5,0,5,5">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10,8" 
+                                        Background="Transparent"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Color Indicator -->
+                                        <Border Grid.Column="0"
+                                                Width="20" Height="20"
+                                                CornerRadius="10"
+                                                Margin="0,0,10,0"
+                                                VerticalAlignment="Center">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{Binding Color, TargetNullValue=#0078D4}"/>
+                                            </Border.Background>
+                                        </Border>
+
+                                        <!-- Tag Info -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" 
+                                                       FontSize="13" 
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="{Binding Class}" 
+                                                       FontSize="11" 
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       Visibility="{Binding Class, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                        </StackPanel>
+
+                                        <!-- Delete Button -->
+                                        <Button Grid.Column="2"
+                                                Content="✕"
+                                                Command="{Binding DataContext.DeleteTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Width="24" Height="24"
+                                                FontSize="12"
+                                                Foreground="#D13438"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Cursor="Hand"
+                                                VerticalAlignment="Center">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}" 
+                                                                        CornerRadius="3"
+                                                                        Padding="5">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="#FFE5E5"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- Tag Editor -->
+            <Border Grid.Column="2"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="5"
+                    Padding="15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="{conv:Localize TagEditor}" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Margin="0,0,0,15"
+                               Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                    <!-- Name Field -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                        <TextBlock Text="{conv:Localize TagName}" 
+                                   FontSize="12" 
+                                   Margin="0,0,0,5"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBox Text="{Binding EditingTagName, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBoxStyle}"
+                                 FontSize="12"
+                                 Padding="8"/>
+                    </StackPanel>
+
+                    <!-- Class Field -->
+                    <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                        <TextBlock Text="{conv:Localize TagClass}" 
+                                   FontSize="12" 
+                                   Margin="0,0,0,5"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBox Text="{Binding EditingTagClass, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModernTextBoxStyle}"
+                                 FontSize="12"
+                                 Padding="8"/>
+                    </StackPanel>
+
+                    <!-- Color Field -->
+                    <StackPanel Grid.Row="3" Margin="0,0,0,10">
+                        <TextBlock Text="{conv:Localize TagColor}" 
+                                   FontSize="12" 
+                                   Margin="0,0,0,5"
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding EditingTagColor, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModernTextBoxStyle}"
+                                     FontSize="12"
+                                     Padding="8"/>
+                            <Border Grid.Column="1"
+                                    Width="32" Height="32"
+                                    CornerRadius="3"
+                                    Margin="5,0,0,0"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1">
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding EditingTagColor, TargetNullValue=#0078D4}"/>
+                                </Border.Background>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Row="5" Orientation="Vertical">
+                        <Button Content="{conv:Localize SaveTag}"
+                                Command="{Binding SaveTagCommand}"
+                                Style="{StaticResource ModernButtonStyle}"
+                                Background="{StaticResource PrimaryBrush}"
+                                Padding="0,8"
+                                FontSize="12"
+                                Margin="0,0,0,8"/>
+                        <Button Content="{conv:Localize NewTag}"
+                                Command="{Binding NewTagCommand}"
+                                Style="{StaticResource ModernButtonStyle}"
+                                Background="#008272"
+                                Padding="0,8"
+                                FontSize="12"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Footer / Close Button -->
+        <Border Grid.Row="2" 
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="20,15">
+            <Button Content="{conv:Localize Close}"
+                    Click="CloseButton_Click"
+                    Style="{StaticResource ModernButtonStyle}"
+                    Background="{StaticResource BorderBrush}"
+                    HorizontalAlignment="Right"
+                    Padding="30,8"
+                    FontSize="12"/>
+        </Border>
+    </Grid>
+</Window>

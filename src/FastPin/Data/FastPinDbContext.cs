@@ -85,6 +85,7 @@ namespace FastPin.Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Class).HasMaxLength(50);
                 entity.HasIndex(e => e.Name).IsUnique();
             });
 

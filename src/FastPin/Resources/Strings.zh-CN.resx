@@ -201,4 +201,40 @@
   <data name="SettingsSavedMessage" xml:space="preserve">
     <value>设置保存成功！请重新启动应用程序以使更改生效。</value>
   </data>
+  <data name="TagManagement" xml:space="preserve">
+    <value>标签管理</value>
+  </data>
+  <data name="AllTags" xml:space="preserve">
+    <value>所有标签</value>
+  </data>
+  <data name="TagEditor" xml:space="preserve">
+    <value>标签编辑器</value>
+  </data>
+  <data name="TagName" xml:space="preserve">
+    <value>标签名称</value>
+  </data>
+  <data name="TagClass" xml:space="preserve">
+    <value>标签分类</value>
+  </data>
+  <data name="TagColor" xml:space="preserve">
+    <value>标签颜色（十六进制）</value>
+  </data>
+  <data name="SaveTag" xml:space="preserve">
+    <value>保存标签</value>
+  </data>
+  <data name="NewTag" xml:space="preserve">
+    <value>新建标签</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="AddTag" xml:space="preserve">
+    <value>添加标签</value>
+  </data>
+  <data name="RemoveTag" xml:space="preserve">
+    <value>移除标签</value>
+  </data>
+  <data name="ManageTags" xml:space="preserve">
+    <value>管理标签</value>
+  </data>
 </root>

@@ -60,6 +60,8 @@ namespace FastPin.ViewModels
             PinFileCommand = new RelayCommand(PinFile);
             DeleteItemCommand = new RelayCommand<PinnedItemViewModel>(DeleteItem, item => item != null);
             AddTagCommand = new RelayCommand(AddTag, () => !string.IsNullOrWhiteSpace(NewTagName));
+            RemoveTagCommand = new RelayCommand<string>(RemoveTag);
+            OpenTagManagementCommand = new RelayCommand(OpenTagManagement);
             ClearSearchCommand = new RelayCommand(ClearSearch);
             ToggleGroupingCommand = new RelayCommand(ToggleGrouping);
             ClearFiltersCommand = new RelayCommand(ClearFilters);
@@ -142,6 +144,8 @@ namespace FastPin.ViewModels
         public ICommand PinFileCommand { get; }
         public ICommand DeleteItemCommand { get; }
         public ICommand AddTagCommand { get; }
+        public ICommand RemoveTagCommand { get; }
+        public ICommand OpenTagManagementCommand { get; }
         public ICommand ClearSearchCommand { get; }
         public ICommand ToggleGroupingCommand { get; }
         public ICommand ClearFiltersCommand { get; }
@@ -561,6 +565,53 @@ namespace FastPin.ViewModels
             {
                 MessageBox.Show($"Error adding tag: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void RemoveTag(string? tagName)
+        {
+            if (SelectedItem == null || string.IsNullOrWhiteSpace(tagName))
+                return;
+
+            try
+            {
+                var tag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagName);
+                if (tag != null)
+                {
+                    var itemTag = _dbContext.ItemTags
+                        .FirstOrDefault(it => it.PinnedItemId == SelectedItem.Id && it.TagId == tag.Id);
+
+                    if (itemTag != null)
+                    {
+                        _dbContext.ItemTags.Remove(itemTag);
+                        _dbContext.SaveChanges();
+
+                        // Refresh the item tags
+                        var item = _dbContext.PinnedItems
+                            .Include(p => p.ItemTags)
+                            .ThenInclude(it => it.Tag)
+                            .FirstOrDefault(p => p.Id == SelectedItem.Id);
+
+                        if (item != null)
+                        {
+                            SelectedItem.RefreshTags();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error removing tag: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OpenTagManagement()
+        {
+            var window = new TagManagementWindow();
+            window.ShowDialog();
+            
+            // Refresh tags after window closes
+            LoadAllTags();
+            LoadItems(); // Reload items to reflect any tag changes
         }
 
         private void LoadItems()

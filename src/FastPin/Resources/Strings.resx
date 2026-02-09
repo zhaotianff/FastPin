@@ -201,4 +201,40 @@
   <data name="SettingsSavedMessage" xml:space="preserve">
     <value>Settings saved successfully! Please restart the application for changes to take effect.</value>
   </data>
+  <data name="TagManagement" xml:space="preserve">
+    <value>Tag Management</value>
+  </data>
+  <data name="AllTags" xml:space="preserve">
+    <value>All Tags</value>
+  </data>
+  <data name="TagEditor" xml:space="preserve">
+    <value>Tag Editor</value>
+  </data>
+  <data name="TagName" xml:space="preserve">
+    <value>Tag Name</value>
+  </data>
+  <data name="TagClass" xml:space="preserve">
+    <value>Tag Class</value>
+  </data>
+  <data name="TagColor" xml:space="preserve">
+    <value>Tag Color (Hex)</value>
+  </data>
+  <data name="SaveTag" xml:space="preserve">
+    <value>Save Tag</value>
+  </data>
+  <data name="NewTag" xml:space="preserve">
+    <value>New Tag</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="AddTag" xml:space="preserve">
+    <value>Add Tag</value>
+  </data>
+  <data name="RemoveTag" xml:space="preserve">
+    <value>Remove Tag</value>
+  </data>
+  <data name="ManageTags" xml:space="preserve">
+    <value>Manage Tags</value>
+  </data>
 </root>
