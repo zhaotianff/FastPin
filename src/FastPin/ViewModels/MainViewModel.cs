@@ -262,6 +262,7 @@ namespace FastPin.ViewModels
                     Type = ItemType.Text,
                     TextContent = text,
                     Source = ItemSource.Clipboard,
+                    SourceApplication = _clipboardMonitor.LastClipboardSource,
                     CreatedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now
                 };
@@ -306,6 +307,7 @@ namespace FastPin.ViewModels
                     ImageHeight = image.PixelHeight,
                     FileSize = imageData.Length,
                     Source = ItemSource.Clipboard,
+                    SourceApplication = _clipboardMonitor.LastClipboardSource,
                     CreatedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now
                 };
@@ -346,6 +348,7 @@ namespace FastPin.ViewModels
                         FileName = Path.GetFileName(filePath),
                         FileSize = fileInfo.Length,
                         Source = ItemSource.Clipboard,
+                        SourceApplication = _clipboardMonitor.LastClipboardSource,
                         IsCached = false, // Default to link mode
                         CreatedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now

@@ -162,4 +162,43 @@
   <data name="NoClipboardContent" xml:space="preserve">
     <value>没有剪贴板内容</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="LanguageSettings" xml:space="preserve">
+    <value>语言设置</value>
+  </data>
+  <data name="DatabaseSettings" xml:space="preserve">
+    <value>数据库设置</value>
+  </data>
+  <data name="DatabaseType" xml:space="preserve">
+    <value>数据库类型</value>
+  </data>
+  <data name="MySqlConnectionSettings" xml:space="preserve">
+    <value>MySQL连接设置</value>
+  </data>
+  <data name="Server" xml:space="preserve">
+    <value>服务器</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>端口</value>
+  </data>
+  <data name="Database" xml:space="preserve">
+    <value>数据库</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>用户名</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>密码</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="SettingsSavedMessage" xml:space="preserve">
+    <value>设置保存成功！请重新启动应用程序以使更改生效。</value>
+  </data>
 </root>

@@ -5,33 +5,66 @@ using System.IO;
 namespace FastPin.Data
 {
     /// <summary>
-    /// Database context for FastPin application using SQLite
+    /// Database context for FastPin application using SQLite or MySQL
     /// </summary>
     public class FastPinDbContext : DbContext
     {
+        private readonly AppSettings _settings;
+
         public DbSet<PinnedItem> PinnedItems { get; set; } = null!;
         public DbSet<Tag> Tags { get; set; } = null!;
         public DbSet<ItemTag> ItemTags { get; set; } = null!;
+
+        public FastPinDbContext()
+        {
+            _settings = AppSettings.Load();
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                // Get application data path
-                var appDataPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "FastPin"
-                );
-
-                // Ensure directory exists
-                if (!Directory.Exists(appDataPath))
+                if (_settings.DatabaseType == "MySQL")
                 {
-                    Directory.CreateDirectory(appDataPath);
+                    ConfigureMySql(optionsBuilder);
                 }
-
-                var dbPath = Path.Combine(appDataPath, "fastpin.db");
-                optionsBuilder.UseSqlite($"Data Source={dbPath}");
+                else
+                {
+                    ConfigureSqlite(optionsBuilder);
+                }
             }
+        }
+
+        private void ConfigureSqlite(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Get application data path
+            var appDataPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "FastPin"
+            );
+
+            // Ensure directory exists
+            if (!Directory.Exists(appDataPath))
+            {
+                Directory.CreateDirectory(appDataPath);
+            }
+
+            var dbPath = Path.Combine(appDataPath, "fastpin.db");
+            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        }
+
+        private void ConfigureMySql(DbContextOptionsBuilder optionsBuilder)
+        {
+            var server = _settings.MySqlServer ?? "localhost";
+            var port = _settings.MySqlPort ?? 3306;
+            var database = _settings.MySqlDatabase ?? "fastpin";
+            var username = _settings.MySqlUsername ?? "root";
+            var password = _settings.MySqlPassword ?? "";
+
+            var connectionString = $"Server={server};Port={port};Database={database};Uid={username};Pwd={password};";
+            
+            // Auto-detect MySQL server version - defaults to 8.0 if detection fails
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

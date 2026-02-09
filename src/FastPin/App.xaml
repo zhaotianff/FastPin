@@ -74,5 +74,13 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
         </Style>
+        
+        <!-- PasswordBox Style -->
+        <Style x:Key="ModernPasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+        </Style>
     </Application.Resources>
 </Application>

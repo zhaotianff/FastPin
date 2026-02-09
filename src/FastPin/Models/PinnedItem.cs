@@ -81,6 +81,11 @@ namespace FastPin.Models
         /// Source of the pinned item (e.g., Clipboard, Manual)
         /// </summary>
         public ItemSource Source { get; set; } = ItemSource.Clipboard;
+        
+        /// <summary>
+        /// Application or window that was the source of the clipboard content
+        /// </summary>
+        public string? SourceApplication { get; set; }
     }
 
     /// <summary>
