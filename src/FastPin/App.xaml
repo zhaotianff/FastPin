@@ -156,33 +156,40 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="DatePicker">
-                        <Border Background="{TemplateBinding Background}"
-                              BorderBrush="{TemplateBinding BorderBrush}"
-                              BorderThickness="{TemplateBinding BorderThickness}"
-                              CornerRadius="4"
-                              Padding="{TemplateBinding Padding}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <DatePickerTextBox x:Name="PART_TextBox"
-                                                 Grid.Column="0"
-                                                 Focusable="{TemplateBinding Focusable}"
-                                                 BorderThickness="0"
-                                                 Background="Transparent"
-                                                 Padding="0"/>
-                                <Button x:Name="PART_Button"
-                                      Grid.Column="1"
-                                      Foreground="{StaticResource TextSecondaryBrush}"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      Cursor="Hand"
-                                      Padding="4,0">
-                                    📅
-                                </Button>
-                            </Grid>
-                        </Border>
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                  BorderBrush="{TemplateBinding BorderBrush}"
+                                  BorderThickness="{TemplateBinding BorderThickness}"
+                                  CornerRadius="4"
+                                  Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <DatePickerTextBox x:Name="PART_TextBox"
+                                                     Grid.Column="0"
+                                                     Focusable="{TemplateBinding Focusable}"
+                                                     BorderThickness="0"
+                                                     Background="Transparent"
+                                                     Padding="0"/>
+                                    <Button x:Name="PART_Button"
+                                          Grid.Column="1"
+                                          Foreground="{StaticResource TextSecondaryBrush}"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Cursor="Hand"
+                                          Padding="4,0">
+                                        📅
+                                    </Button>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   Placement="Bottom"
+                                   PlacementTarget="{Binding ElementName=PART_TextBox}"
+                                   StaysOpen="False"/>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>

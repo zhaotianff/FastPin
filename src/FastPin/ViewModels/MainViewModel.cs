@@ -709,17 +709,85 @@ namespace FastPin.ViewModels
             if (_clipboardPreviewType == null)
                 return;
 
-            switch (_clipboardPreviewType.Value)
+            try
             {
-                case ItemType.Text:
-                    PinText();
-                    break;
-                case ItemType.Image:
-                    PinImage();
-                    break;
-                case ItemType.File:
-                    PinFile();
-                    break;
+                switch (_clipboardPreviewType.Value)
+                {
+                    case ItemType.Text:
+                        if (!string.IsNullOrEmpty(_clipboardPreviewText))
+                        {
+                            var item = new PinnedItem
+                            {
+                                Type = ItemType.Text,
+                                TextContent = _clipboardPreviewText,
+                                Source = ItemSource.Clipboard,
+                                SourceApplication = _clipboardMonitor.LastClipboardSource,
+                                CreatedDate = DateTime.Now,
+                                ModifiedDate = DateTime.Now
+                            };
+
+                            _dbContext.PinnedItems.Add(item);
+                            _dbContext.SaveChanges();
+                            LoadItems();
+                        }
+                        break;
+                    case ItemType.Image:
+                        if (_clipboardPreviewImage != null && _clipboardPreviewImage.Length > 0)
+                        {
+                            // Use cached preview image data
+                            int? imageWidth = null;
+                            int? imageHeight = null;
+                            
+                            if (_clipboardPreviewImageSource != null)
+                            {
+                                imageWidth = _clipboardPreviewImageSource.PixelWidth;
+                                imageHeight = _clipboardPreviewImageSource.PixelHeight;
+                            }
+                            
+                            var item = new PinnedItem
+                            {
+                                Type = ItemType.Image,
+                                ImageData = _clipboardPreviewImage,
+                                ImageWidth = imageWidth,
+                                ImageHeight = imageHeight,
+                                FileSize = _clipboardPreviewImage.Length,
+                                Source = ItemSource.Clipboard,
+                                SourceApplication = _clipboardMonitor.LastClipboardSource,
+                                CreatedDate = DateTime.Now,
+                                ModifiedDate = DateTime.Now
+                            };
+
+                            _dbContext.PinnedItems.Add(item);
+                            _dbContext.SaveChanges();
+                            LoadItems();
+                        }
+                        break;
+                    case ItemType.File:
+                        if (!string.IsNullOrEmpty(_clipboardPreviewFilePath) && File.Exists(_clipboardPreviewFilePath))
+                        {
+                            var fileInfo = new FileInfo(_clipboardPreviewFilePath);
+                            var item = new PinnedItem
+                            {
+                                Type = ItemType.File,
+                                FilePath = _clipboardPreviewFilePath,
+                                FileName = fileInfo.Name,
+                                FileSize = fileInfo.Length,
+                                Source = ItemSource.Clipboard,
+                                SourceApplication = _clipboardMonitor.LastClipboardSource,
+                                CreatedDate = DateTime.Now,
+                                ModifiedDate = DateTime.Now
+                            };
+
+                            _dbContext.PinnedItems.Add(item);
+                            _dbContext.SaveChanges();
+                            LoadItems();
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error pinning clipboard content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             
             DiscardClipboard();
