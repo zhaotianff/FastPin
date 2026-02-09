@@ -87,4 +87,28 @@ public partial class MainWindow : Window
             _viewModel.CurrentLanguage = settings.Language;
         }
     }
+
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (WindowState == WindowState.Maximized)
+        {
+            WindowState = WindowState.Normal;
+            MaximizeRestoreButton.Content = "□";
+        }
+        else
+        {
+            WindowState = WindowState.Maximized;
+            MaximizeRestoreButton.Content = "❐";
+        }
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 }

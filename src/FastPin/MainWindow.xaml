@@ -10,7 +10,18 @@
         mc:Ignorable="d"
         Title="{conv:Localize AppTitle}" Height="600" Width="900"
         Background="{StaticResource BackgroundBrush}"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        ResizeMode="CanResize">
+    
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40"
+                      ResizeBorderThickness="5"
+                      GlassFrameThickness="0"
+                      CornerRadius="0"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
     
     <Grid Margin="0">
         <Grid.RowDefinitions>
@@ -22,7 +33,117 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="20,15">
-            <TextBlock Text="FastPin" FontSize="24" FontWeight="Bold" Foreground="White"/>
+            <Grid>
+                <TextBlock Text="FastPin" FontSize="24" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                
+                <!-- Custom Window Control Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <!-- Minimize Button -->
+                    <Button Content="─" 
+                            Click="MinimizeButton_Click"
+                            Width="40" Height="30"
+                            Margin="0,0,5,0"
+                            Foreground="White"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="14"
+                            VerticalContentAlignment="Center"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#106EBE"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Maximize/Restore Button -->
+                    <Button x:Name="MaximizeRestoreButton"
+                            Content="□" 
+                            Click="MaximizeRestoreButton_Click"
+                            Width="40" Height="30"
+                            Margin="0,0,5,0"
+                            Foreground="White"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="14"
+                            VerticalContentAlignment="Center"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#106EBE"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
+                    <!-- Close Button -->
+                    <Button Content="✕" 
+                            Click="CloseButton_Click"
+                            Width="40" Height="30"
+                            Foreground="White"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="16"
+                            VerticalContentAlignment="Center"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E81123"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- Toolbar -->

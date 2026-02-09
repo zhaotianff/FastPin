@@ -8,23 +8,72 @@
         Title="{conv:Localize Settings}" Height="400" Width="500"
         Background="{StaticResource BackgroundBrush}"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="False"
         ResizeMode="NoResize">
     
-    <Grid Margin="20">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40"
+                      ResizeBorderThickness="0"
+                      GlassFrameThickness="0"
+                      CornerRadius="0"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+    
+    <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock Grid.Row="0" Text="{conv:Localize Settings}" 
-                   FontSize="24" FontWeight="Bold" 
-                   Foreground="{StaticResource TextPrimaryBrush}"
-                   Margin="0,0,0,20"/>
+        <!-- Title Bar -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="20,10">
+            <Grid>
+                <TextBlock Text="{conv:Localize Settings}" 
+                           FontSize="18" FontWeight="SemiBold" 
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+                
+                <!-- Close Button -->
+                <Button Content="✕" 
+                        Click="CloseButton_Click"
+                        Width="40" Height="30"
+                        HorizontalAlignment="Right"
+                        Foreground="White"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        FontSize="16"
+                        VerticalContentAlignment="Center"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" 
+                                                BorderThickness="0"
+                                                Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#E81123"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
+        </Border>
 
         <!-- Settings Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="20">
             <StackPanel>
                 <!-- Language Section -->
                 <Border Background="{StaticResource SurfaceBrush}" 
@@ -165,7 +214,7 @@
         </ScrollViewer>
 
         <!-- Action Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,20,20,20">
             <Button Content="{conv:Localize Save}" 
                     Click="SaveButton_Click"
                     Style="{StaticResource ModernButtonStyle}"
