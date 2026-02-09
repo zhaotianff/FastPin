@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Input;
 using FastPin.ViewModels;
@@ -31,9 +32,14 @@ namespace FastPin
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             // Allow dragging the window
-            if (e.ClickCount == 1)
+            try
             {
                 DragMove();
+            }
+            catch (InvalidOperationException)
+            {
+                // DragMove can throw if the mouse button is released during the drag
+                // Silently ignore this exception as it's expected behavior
             }
         }
     }
