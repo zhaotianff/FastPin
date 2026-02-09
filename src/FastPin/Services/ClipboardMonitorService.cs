@@ -85,6 +85,18 @@ namespace FastPin.Services
             try
             {
                 IntPtr clipboardOwner = GetClipboardOwner();
+                
+                // If GetClipboardOwner fails, try WindowFromPoint as fallback
+                // Note: This fallback may not always be accurate as the cursor position
+                // may not correspond to the application that modified the clipboard
+                if (clipboardOwner == IntPtr.Zero)
+                {
+                    if (GetCursorPos(out POINT cursorPos))
+                    {
+                        clipboardOwner = WindowFromPoint(cursorPos);
+                    }
+                }
+                
                 if (clipboardOwner == IntPtr.Zero)
                     return null;
 
@@ -131,5 +143,18 @@ namespace FastPin.Services
         
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+        
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool GetCursorPos(out POINT lpPoint);
+        
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(POINT Point);
+        
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int X;
+            public int Y;
+        }
     }
 }
