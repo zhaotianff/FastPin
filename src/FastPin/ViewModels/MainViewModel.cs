@@ -228,11 +228,60 @@ namespace FastPin.ViewModels
                     var files = Clipboard.GetFileDropList();
                     if (files != null && files.Count > 0)
                     {
-                        _clipboardPreviewFilePath = files[0]?.ToString();
-                        _clipboardPreviewType = ItemType.File;
-                        _clipboardPreviewText = null;
-                        _clipboardPreviewImage = null;
-                        _clipboardPreviewImageSource = null;
+                        var filePath = files[0]?.ToString();
+                        if (!string.IsNullOrEmpty(filePath))
+                        {
+                            // Check if the file is an image
+                            var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".ico", ".webp" };
+                            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+                            
+                            if (imageExtensions.Contains(extension) && File.Exists(filePath))
+                            {
+                                // Handle as image content rather than file
+                                try
+                                {
+                                    var bitmap = new BitmapImage();
+                                    bitmap.BeginInit();
+                                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                    bitmap.UriSource = new Uri(filePath);
+                                    bitmap.EndInit();
+                                    bitmap.Freeze();
+                                    
+                                    // Convert to byte array
+                                    var encoder = new PngBitmapEncoder();
+                                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                                    using (var stream = new MemoryStream())
+                                    {
+                                        encoder.Save(stream);
+                                        _clipboardPreviewImage = stream.ToArray();
+                                    }
+                                    
+                                    _clipboardPreviewImageSource = bitmap;
+                                    _clipboardPreviewType = ItemType.Image;
+                                    _clipboardPreviewText = null;
+                                    _clipboardPreviewFilePath = null;
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"Error loading image file: {ex.Message}");
+                                    // Fallback to file handling
+                                    _clipboardPreviewFilePath = filePath;
+                                    _clipboardPreviewType = ItemType.File;
+                                    _clipboardPreviewText = null;
+                                    _clipboardPreviewImage = null;
+                                    _clipboardPreviewImageSource = null;
+                                }
+                            }
+                            else
+                            {
+                                // Handle as regular file
+                                _clipboardPreviewFilePath = filePath;
+                                _clipboardPreviewType = ItemType.File;
+                                _clipboardPreviewText = null;
+                                _clipboardPreviewImage = null;
+                                _clipboardPreviewImageSource = null;
+                            }
+                        }
                     }
                 }
                 

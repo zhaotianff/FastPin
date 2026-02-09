@@ -48,15 +48,25 @@
         </Button>
 
         <!-- Image container with scroll viewer -->
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+        <ScrollViewer x:Name="ImageScrollViewer"
+                      HorizontalScrollBarVisibility="Auto" 
                       VerticalScrollBarVisibility="Auto"
-                      Background="Transparent">
+                      Background="Transparent"
+                      PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
+                      PreviewMouseLeftButtonDown="ScrollViewer_PreviewMouseLeftButtonDown"
+                      PreviewMouseMove="ScrollViewer_PreviewMouseMove"
+                      PreviewMouseLeftButtonUp="ScrollViewer_PreviewMouseLeftButtonUp">
             <Image x:Name="ImageControl"
                    Source="{Binding ImageSource}"
                    Stretch="Uniform"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Margin="50"/>
+                   Margin="50"
+                   RenderTransformOrigin="0.5,0.5">
+                <Image.RenderTransform>
+                    <ScaleTransform x:Name="ImageScaleTransform" ScaleX="1" ScaleY="1"/>
+                </Image.RenderTransform>
+            </Image>
         </ScrollViewer>
 
         <!-- Image info overlay -->
