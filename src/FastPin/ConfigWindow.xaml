@@ -15,7 +15,7 @@
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40"
                       ResizeBorderThickness="0"
-                      GlassFrameThickness="0"
+                      GlassFrameThickness="1"
                       CornerRadius="0"
                       UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
