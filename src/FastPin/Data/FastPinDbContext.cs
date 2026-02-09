@@ -63,8 +63,8 @@ namespace FastPin.Data
 
             var connectionString = $"Server={server};Port={port};Database={database};Uid={username};Pwd={password};";
             
-            var serverVersion = new MySqlServerVersion(new Version(8, 0, 21));
-            optionsBuilder.UseMySql(connectionString, serverVersion);
+            // Auto-detect MySQL server version - defaults to 8.0 if detection fails
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

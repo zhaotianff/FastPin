@@ -6,6 +6,9 @@ namespace FastPin.Models
 {
     /// <summary>
     /// Application settings model
+    /// NOTE: MySQL password is stored in plain text in settings.json.
+    /// For production use, consider implementing secure credential storage
+    /// such as Windows Credential Manager or encrypted configuration.
     /// </summary>
     public class AppSettings
     {

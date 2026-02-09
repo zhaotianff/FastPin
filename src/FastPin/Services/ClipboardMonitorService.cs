@@ -94,16 +94,24 @@ namespace FastPin.Services
                     return null;
 
                 // Get process name
-                using (var process = Process.GetProcessById((int)processId))
+                try
                 {
-                    // Try to get the main window title first
-                    if (!string.IsNullOrWhiteSpace(process.MainWindowTitle))
+                    using (var process = Process.GetProcessById((int)processId))
                     {
-                        return process.MainWindowTitle;
+                        // Try to get the main window title first
+                        if (!string.IsNullOrWhiteSpace(process.MainWindowTitle))
+                        {
+                            return process.MainWindowTitle;
+                        }
+                        
+                        // Otherwise use process name
+                        return process.ProcessName;
                     }
-                    
-                    // Otherwise use process name
-                    return process.ProcessName;
+                }
+                catch (ArgumentException)
+                {
+                    // Process has exited - this can happen in race conditions
+                    return null;
                 }
             }
             catch
