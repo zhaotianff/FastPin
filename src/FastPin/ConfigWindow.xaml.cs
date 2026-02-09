@@ -102,6 +102,12 @@ namespace FastPin
             Close();
         }
 
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
+
         private void DatabaseTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (MySqlSettingsPanel == null)

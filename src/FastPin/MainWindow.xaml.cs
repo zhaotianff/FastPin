@@ -11,6 +11,9 @@ public partial class MainWindow : Window
 {
     private MainViewModel _viewModel;
     private NotifyIconService _notifyIconService;
+    
+    private const string MaximizeSymbol = "□";
+    private const string RestoreSymbol = "❐";
 
     public MainWindow()
     {
@@ -86,5 +89,29 @@ public partial class MainWindow : Window
             var settings = Models.AppSettings.Load();
             _viewModel.CurrentLanguage = settings.Language;
         }
+    }
+
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (WindowState == WindowState.Maximized)
+        {
+            WindowState = WindowState.Normal;
+            MaximizeRestoreButton.Content = MaximizeSymbol;
+        }
+        else
+        {
+            WindowState = WindowState.Maximized;
+            MaximizeRestoreButton.Content = RestoreSymbol;
+        }
+    }
+
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
     }
 }
