@@ -187,11 +187,20 @@
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="Auto"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding DisplayDate}" 
-                                                                   FontSize="12" 
-                                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
-                                                        <TextBlock Grid.Column="1" 
+                                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding DisplayDate}" 
+                                                                       FontSize="12" 
+                                                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                            <TextBlock Text="{Binding SourceDisplayText}" 
+                                                                       FontSize="11" 
+                                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                                       FontStyle="Italic"
+                                                                       Margin="10,0,0,0"
+                                                                       Visibility="{Binding SourceDisplayText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="2" 
                                                                    Text="{Binding Type}" 
                                                                    FontSize="11" 
                                                                    FontWeight="Medium"
@@ -340,11 +349,20 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding DisplayDate}" 
-                                               FontSize="12" 
-                                               Foreground="{StaticResource TextSecondaryBrush}"/>
-                                    <TextBlock Grid.Column="1" 
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="{Binding DisplayDate}" 
+                                                   FontSize="12" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="{Binding SourceDisplayText}" 
+                                                   FontSize="11" 
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   FontStyle="Italic"
+                                                   Margin="10,0,0,0"
+                                                   Visibility="{Binding SourceDisplayText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" 
                                                Text="{Binding Type}" 
                                                FontSize="11" 
                                                FontWeight="Medium"

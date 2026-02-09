@@ -148,6 +148,19 @@ namespace FastPin.ViewModels
         public long? FileSize => _model.FileSize;
 
         public ItemSource Source => _model.Source;
+        
+        public string? SourceApplication => _model.SourceApplication;
+        
+        public string SourceDisplayText
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(SourceApplication))
+                    return string.Empty;
+                
+                return $"From {SourceApplication}";
+            }
+        }
 
         public string FileSizeFormatted
         {
