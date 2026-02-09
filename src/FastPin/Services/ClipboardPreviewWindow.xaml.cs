@@ -26,6 +26,7 @@ namespace FastPin.Services
         private void ClipboardPreviewWindow_Loaded(object sender, RoutedEventArgs e)
         {
             AdjustWindowSize();
+            RepositionWindow();
         }
 
         private void AdjustWindowSize()
@@ -80,6 +81,13 @@ namespace FastPin.Services
                     Height = Math.Max(minPreviewHeight, previewHeight + 120);
                 }
             }
+        }
+
+        private void RepositionWindow()
+        {
+            // Position near the system tray (bottom-right corner)
+            Left = SystemParameters.PrimaryScreenWidth - ActualWidth - 10;
+            Top = SystemParameters.PrimaryScreenHeight - ActualHeight - 50;
         }
 
         private void PinButton_Click(object sender, RoutedEventArgs e)

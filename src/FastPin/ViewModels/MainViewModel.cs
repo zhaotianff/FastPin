@@ -63,6 +63,7 @@ namespace FastPin.ViewModels
             PinClipboardCommand = new RelayCommand(PinClipboard);
             DiscardClipboardCommand = new RelayCommand(DiscardClipboard);
             CopyItemCommand = new RelayCommand<PinnedItemViewModel>(CopyItem);
+            ViewImageCommand = new RelayCommand<PinnedItemViewModel>(ViewImage, item => item != null && item.Type == ItemType.Image);
 
             LoadItems();
             LoadAllTags();
@@ -144,6 +145,7 @@ namespace FastPin.ViewModels
         public ICommand PinClipboardCommand { get; }
         public ICommand DiscardClipboardCommand { get; }
         public ICommand CopyItemCommand { get; }
+        public ICommand ViewImageCommand { get; }
 
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
@@ -717,6 +719,22 @@ namespace FastPin.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Error copying item: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ViewImage(PinnedItemViewModel? item)
+        {
+            if (item == null || item.Type != ItemType.Image)
+                return;
+
+            try
+            {
+                var imageViewer = new ImageViewerWindow(item);
+                imageViewer.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening image viewer: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

@@ -222,7 +222,14 @@
                                                                    MaxHeight="300" 
                                                                    MaxWidth="600"
                                                                    Stretch="Uniform"
-                                                                   HorizontalAlignment="Left"/>
+                                                                   HorizontalAlignment="Left"
+                                                                   Cursor="Hand">
+                                                                <Image.InputBindings>
+                                                                    <MouseBinding MouseAction="LeftDoubleClick"
+                                                                                  Command="{Binding DataContext.ViewImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                  CommandParameter="{Binding}"/>
+                                                                </Image.InputBindings>
+                                                            </Image>
                                                             <TextBlock Text="{Binding ImageMetadata}" 
                                                                        Margin="0,5,0,0"
                                                                        FontSize="11" 
@@ -384,7 +391,14 @@
                                                MaxHeight="300" 
                                                MaxWidth="600"
                                                Stretch="Uniform"
-                                               HorizontalAlignment="Left"/>
+                                               HorizontalAlignment="Left"
+                                               Cursor="Hand">
+                                            <Image.InputBindings>
+                                                <MouseBinding MouseAction="LeftDoubleClick"
+                                                              Command="{Binding DataContext.ViewImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              CommandParameter="{Binding}"/>
+                                            </Image.InputBindings>
+                                        </Image>
                                         <TextBlock Text="{Binding ImageMetadata}" 
                                                    Margin="0,5,0,0"
                                                    FontSize="11" 
