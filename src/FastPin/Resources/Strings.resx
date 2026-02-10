@@ -246,4 +246,22 @@
   <data name="ManageTags" xml:space="preserve">
     <value>Manage Tags</value>
   </data>
+  <data name="PinActions" xml:space="preserve">
+    <value>Pin Actions</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="ViewOptions" xml:space="preserve">
+    <value>View Options</value>
+  </data>
+  <data name="PleaseEnterTagName" xml:space="preserve">
+    <value>Please enter a tag name</value>
+  </data>
+  <data name="ConfirmDeleteTag" xml:space="preserve">
+    <value>Are you sure you want to delete this tag</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
 </root>

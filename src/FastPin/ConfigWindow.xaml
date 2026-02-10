@@ -5,16 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:conv="clr-namespace:FastPin.Converters"
         mc:Ignorable="d"
-        Title="{conv:Localize Settings}" Height="400" Width="500"
+        Title="{conv:Localize Settings}" Height="600" Width="800"
         Background="{StaticResource BackgroundBrush}"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="False"
-        ResizeMode="NoResize">
+        ResizeMode="CanResize">
     
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40"
-                      ResizeBorderThickness="0"
+                      ResizeBorderThickness="5"
                       GlassFrameThickness="1"
                       CornerRadius="0"
                       UseAeroCaptionButtons="False"/>
@@ -72,146 +72,408 @@
             </Grid>
         </Border>
 
-        <!-- Settings Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="20">
-            <StackPanel>
-                <!-- Language Section -->
-                <Border Background="{StaticResource SurfaceBrush}" 
-                        BorderBrush="{StaticResource BorderBrush}" 
-                        BorderThickness="1" 
-                        CornerRadius="6" 
-                        Padding="15" 
-                        Margin="0,0,0,15">
+        <!-- Tab Control for Settings and Tag Management -->
+        <TabControl Grid.Row="1" Margin="0" BorderThickness="0" Background="Transparent">
+            <TabControl.Resources>
+                <Style TargetType="TabControl">
+                    <Setter Property="Background" Value="Transparent"/>
+                </Style>
+                <Style TargetType="TabItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="Border" 
+                                        Background="{StaticResource BackgroundBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="0,0,0,2"
+                                        Padding="20,10"
+                                        Margin="0,0,2,0">
+                                    <ContentPresenter x:Name="ContentSite"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Center"
+                                                      ContentSource="Header"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="{StaticResource SurfaceBrush}"/>
+                                        <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="{StaticResource SurfaceBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+            
+            <!-- Settings Tab -->
+            <TabItem Header="{conv:Localize Settings}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="20">
                     <StackPanel>
-                        <TextBlock Text="{conv:Localize LanguageSettings}" 
-                                   FontSize="16" FontWeight="SemiBold" 
-                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,10"/>
+                        <!-- Language Section -->
+                        <Border Background="{StaticResource SurfaceBrush}" 
+                                BorderBrush="{StaticResource BorderBrush}" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="15" 
+                                Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="{conv:Localize LanguageSettings}" 
+                                           FontSize="16" FontWeight="SemiBold" 
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{conv:Localize Language}" 
+                                               VerticalAlignment="Center" 
+                                               Margin="0,0,15,0"
+                                               FontSize="14"/>
+                                    <ComboBox Grid.Column="1" 
+                                              x:Name="LanguageComboBox"
+                                              SelectedValuePath="Tag" 
+                                              FontSize="14"
+                                              Style="{StaticResource ModernComboBoxStyle}">
+                                        <ComboBoxItem Content="English" Tag="en-US"/>
+                                        <ComboBoxItem Content="中文" Tag="zh-CN"/>
+                                    </ComboBox>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Database Section -->
+                        <Border Background="{StaticResource SurfaceBrush}" 
+                                BorderBrush="{StaticResource BorderBrush}" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="15">
+                            <StackPanel>
+                                <TextBlock Text="{conv:Localize DatabaseSettings}" 
+                                           FontSize="16" FontWeight="SemiBold" 
+                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                           Margin="0,0,0,10"/>
+                                
+                                <!-- Database Type -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{conv:Localize DatabaseType}" 
+                                               VerticalAlignment="Center" 
+                                               Margin="0,0,15,0"
+                                               FontSize="14"/>
+                                    <ComboBox Grid.Column="1" 
+                                              x:Name="DatabaseTypeComboBox"
+                                              SelectedValuePath="Tag"
+                                              SelectionChanged="DatabaseTypeComboBox_SelectionChanged"
+                                              FontSize="14"
+                                              Style="{StaticResource ModernComboBoxStyle}">
+                                        <ComboBoxItem Content="SQLite" Tag="SQLite"/>
+                                        <ComboBoxItem Content="MySQL" Tag="MySQL"/>
+                                    </ComboBox>
+                                </Grid>
+
+                                <!-- MySQL Connection Settings -->
+                                <StackPanel x:Name="MySqlSettingsPanel" Visibility="Collapsed" Margin="0,10,0,0">
+                                    <TextBlock Text="{conv:Localize MySqlConnectionSettings}" 
+                                               FontSize="13" FontWeight="Medium"
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               Margin="0,0,0,10"/>
+                                    
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{conv:Localize Server}" 
+                                                   VerticalAlignment="Center" FontSize="13"/>
+                                        <TextBox Grid.Column="1" x:Name="MySqlServerTextBox" 
+                                                 Style="{StaticResource ModernTextBoxStyle}"
+                                                 FontSize="13"/>
+                                    </Grid>
+                                    
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{conv:Localize Port}" 
+                                                   VerticalAlignment="Center" FontSize="13"/>
+                                        <TextBox Grid.Column="1" x:Name="MySqlPortTextBox" 
+                                                 Style="{StaticResource ModernTextBoxStyle}"
+                                                 FontSize="13"/>
+                                    </Grid>
+                                    
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{conv:Localize Database}" 
+                                                   VerticalAlignment="Center" FontSize="13"/>
+                                        <TextBox Grid.Column="1" x:Name="MySqlDatabaseTextBox" 
+                                                 Style="{StaticResource ModernTextBoxStyle}"
+                                                 FontSize="13"/>
+                                    </Grid>
+                                    
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{conv:Localize Username}" 
+                                                   VerticalAlignment="Center" FontSize="13"/>
+                                        <TextBox Grid.Column="1" x:Name="MySqlUsernameTextBox" 
+                                                 Style="{StaticResource ModernTextBoxStyle}"
+                                                 FontSize="13"/>
+                                    </Grid>
+                                    
+                                    <Grid Margin="0,0,0,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{conv:Localize Password}" 
+                                                   VerticalAlignment="Center" FontSize="13"/>
+                                        <PasswordBox Grid.Column="1" x:Name="MySqlPasswordBox" 
+                                                     Style="{StaticResource ModernPasswordBoxStyle}"
+                                                     FontSize="13"/>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Tag Management Tab -->
+            <TabItem Header="{conv:Localize TagManagement}" x:Name="TagManagementTab">
+                <Grid Margin="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Tag List -->
+                    <Border Grid.Column="0" 
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="5">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{conv:Localize Language}" 
-                                       VerticalAlignment="Center" 
-                                       Margin="0,0,15,0"
-                                       FontSize="14"/>
-                            <ComboBox Grid.Column="1" 
-                                      x:Name="LanguageComboBox"
-                                      SelectedValuePath="Tag" 
-                                      FontSize="14"
-                                      Style="{StaticResource ModernComboBoxStyle}">
-                                <ComboBoxItem Content="English" Tag="en-US"/>
-                                <ComboBoxItem Content="中文" Tag="zh-CN"/>
-                            </ComboBox>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                <!-- Database Section -->
-                <Border Background="{StaticResource SurfaceBrush}" 
-                        BorderBrush="{StaticResource BorderBrush}" 
-                        BorderThickness="1" 
-                        CornerRadius="6" 
-                        Padding="15">
-                    <StackPanel>
-                        <TextBlock Text="{conv:Localize DatabaseSettings}" 
-                                   FontSize="16" FontWeight="SemiBold" 
-                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                   Margin="0,0,0,10"/>
-                        
-                        <!-- Database Type -->
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{conv:Localize DatabaseType}" 
-                                       VerticalAlignment="Center" 
-                                       Margin="0,0,15,0"
-                                       FontSize="14"/>
-                            <ComboBox Grid.Column="1" 
-                                      x:Name="DatabaseTypeComboBox"
-                                      SelectedValuePath="Tag"
-                                      SelectionChanged="DatabaseTypeComboBox_SelectionChanged"
-                                      FontSize="14"
-                                      Style="{StaticResource ModernComboBoxStyle}">
-                                <ComboBoxItem Content="SQLite" Tag="SQLite"/>
-                                <ComboBoxItem Content="MySQL" Tag="MySQL"/>
-                            </ComboBox>
-                        </Grid>
+                            <TextBlock Grid.Row="0" 
+                                       Text="{conv:Localize AllTags}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Margin="15,10"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
 
-                        <!-- MySQL Connection Settings -->
-                        <StackPanel x:Name="MySqlSettingsPanel" Visibility="Collapsed" Margin="0,10,0,0">
-                            <TextBlock Text="{conv:Localize MySqlConnectionSettings}" 
-                                       FontSize="13" FontWeight="Medium"
-                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                       Margin="0,0,0,10"/>
-                            
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{conv:Localize Server}" 
-                                           VerticalAlignment="Center" FontSize="13"/>
-                                <TextBox Grid.Column="1" x:Name="MySqlServerTextBox" 
+                            <ListBox Grid.Row="1"
+                                     x:Name="TagsListBox"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Margin="5,0,5,5">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="10,8" 
+                                                Background="Transparent"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Color Indicator -->
+                                                <Border Grid.Column="0"
+                                                        Width="20" Height="20"
+                                                        CornerRadius="10"
+                                                        Margin="0,0,10,0"
+                                                        VerticalAlignment="Center">
+                                                    <Border.Background>
+                                                        <SolidColorBrush Color="{Binding Color, TargetNullValue=#0078D4}"/>
+                                                    </Border.Background>
+                                                </Border>
+
+                                                <!-- Tag Info -->
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" 
+                                                               FontSize="13" 
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                    <TextBlock Text="{Binding Class}" 
+                                                               FontSize="11" 
+                                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                                               Visibility="{Binding Class, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                                </StackPanel>
+
+                                                <!-- Delete Button -->
+                                                <Button Grid.Column="2"
+                                                        Content="✕"
+                                                        Click="DeleteTag_Click"
+                                                        Tag="{Binding}"
+                                                        Width="24" Height="24"
+                                                        FontSize="12"
+                                                        Foreground="#D13438"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Cursor="Hand"
+                                                        VerticalAlignment="Center">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}" 
+                                                                                CornerRadius="3"
+                                                                                Padding="5">
+                                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#FFE5E5"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Tag Editor -->
+                    <Border Grid.Column="2"
+                            Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="15">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" 
+                                       Text="{conv:Localize TagEditor}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Margin="0,0,0,15"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                            <!-- Name Field -->
+                            <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                                <TextBlock Text="{conv:Localize TagName}" 
+                                           FontSize="12" 
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBox x:Name="TagNameTextBox"
                                          Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13"/>
-                            </Grid>
-                            
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{conv:Localize Port}" 
-                                           VerticalAlignment="Center" FontSize="13"/>
-                                <TextBox Grid.Column="1" x:Name="MySqlPortTextBox" 
+                                         FontSize="12"
+                                         Padding="8"/>
+                            </StackPanel>
+
+                            <!-- Class Field -->
+                            <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                                <TextBlock Text="{conv:Localize TagClass}" 
+                                           FontSize="12" 
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <TextBox x:Name="TagClassTextBox"
                                          Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13"/>
-                            </Grid>
-                            
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{conv:Localize Database}" 
-                                           VerticalAlignment="Center" FontSize="13"/>
-                                <TextBox Grid.Column="1" x:Name="MySqlDatabaseTextBox" 
-                                         Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13"/>
-                            </Grid>
-                            
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{conv:Localize Username}" 
-                                           VerticalAlignment="Center" FontSize="13"/>
-                                <TextBox Grid.Column="1" x:Name="MySqlUsernameTextBox" 
-                                         Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13"/>
-                            </Grid>
-                            
-                            <Grid Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{conv:Localize Password}" 
-                                           VerticalAlignment="Center" FontSize="13"/>
-                                <PasswordBox Grid.Column="1" x:Name="MySqlPasswordBox" 
-                                             Style="{StaticResource ModernPasswordBoxStyle}"
-                                             FontSize="13"/>
-                            </Grid>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
+                                         FontSize="12"
+                                         Padding="8"/>
+                            </StackPanel>
+
+                            <!-- Color Field -->
+                            <StackPanel Grid.Row="3" Margin="0,0,0,10">
+                                <TextBlock Text="{conv:Localize TagColor}" 
+                                           FontSize="12" 
+                                           Margin="0,0,0,5"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             x:Name="TagColorTextBox"
+                                             Style="{StaticResource ModernTextBoxStyle}"
+                                             FontSize="12"
+                                             Padding="8"/>
+                                    <Border Grid.Column="1"
+                                            x:Name="ColorPreviewBorder"
+                                            Width="32" Height="32"
+                                            CornerRadius="3"
+                                            Margin="5,0,0,0"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            BorderThickness="1"
+                                            Background="#0078D4"/>
+                                </Grid>
+                                
+                                <!-- Color Palette -->
+                                <TextBlock Text="{conv:Localize QuickColors}" 
+                                           FontSize="11" 
+                                           Margin="0,8,0,5"
+                                           Foreground="{StaticResource TextSecondaryBrush}"/>
+                                <WrapPanel>
+                                    <Border Width="28" Height="28" Background="#0078D4" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Blue" MouseLeftButtonDown="ColorButton_Click" Tag="#0078D4"/>
+                                    <Border Width="28" Height="28" Background="#D13438" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Red" MouseLeftButtonDown="ColorButton_Click" Tag="#D13438"/>
+                                    <Border Width="28" Height="28" Background="#008272" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Green" MouseLeftButtonDown="ColorButton_Click" Tag="#008272"/>
+                                    <Border Width="28" Height="28" Background="#FFA500" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Orange" MouseLeftButtonDown="ColorButton_Click" Tag="#FFA500"/>
+                                    <Border Width="28" Height="28" Background="#9C27B0" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Purple" MouseLeftButtonDown="ColorButton_Click" Tag="#9C27B0"/>
+                                    <Border Width="28" Height="28" Background="#E91E63" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Pink" MouseLeftButtonDown="ColorButton_Click" Tag="#E91E63"/>
+                                    <Border Width="28" Height="28" Background="#795548" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Brown" MouseLeftButtonDown="ColorButton_Click" Tag="#795548"/>
+                                    <Border Width="28" Height="28" Background="#607D8B" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Gray" MouseLeftButtonDown="ColorButton_Click" Tag="#607D8B"/>
+                                    <Border Width="28" Height="28" Background="#FFEB3B" CornerRadius="4" Margin="0,0,5,5" Cursor="Hand" ToolTip="Yellow" MouseLeftButtonDown="ColorButton_Click" Tag="#FFEB3B"/>
+                                </WrapPanel>
+                            </StackPanel>
+
+                            <!-- Action Buttons -->
+                            <StackPanel Grid.Row="5" Orientation="Vertical">
+                                <Button Content="{conv:Localize SaveTag}"
+                                        Click="SaveTag_Click"
+                                        Style="{StaticResource ModernButtonStyle}"
+                                        Background="{StaticResource PrimaryBrush}"
+                                        Padding="0,8"
+                                        FontSize="12"
+                                        Margin="0,0,0,8"/>
+                                <Button Content="{conv:Localize NewTag}"
+                                        Click="NewTag_Click"
+                                        Style="{StaticResource ModernButtonStyle}"
+                                        Background="#008272"
+                                        Padding="0,8"
+                                        FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
 
         <!-- Action Buttons -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,20,20,20">

@@ -1,7 +1,11 @@
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using FastPin.Models;
+using FastPin.ViewModels;
 
 namespace FastPin
 {
@@ -11,12 +15,21 @@ namespace FastPin
     public partial class ConfigWindow : Window
     {
         private AppSettings _settings;
+        private TagManagementViewModel _tagViewModel;
 
         public ConfigWindow()
         {
             InitializeComponent();
             _settings = AppSettings.Load();
+            _tagViewModel = new TagManagementViewModel();
             LoadSettings();
+            LoadTags();
+            
+            // Subscribe to tag list selection change
+            TagsListBox.SelectionChanged += TagsListBox_SelectionChanged;
+            
+            // Subscribe to color text change
+            TagColorTextBox.TextChanged += TagColorTextBox_TextChanged;
         }
 
         private void LoadSettings()
@@ -47,6 +60,130 @@ namespace FastPin
             MySqlDatabaseTextBox.Text = _settings.MySqlDatabase ?? "fastpin";
             MySqlUsernameTextBox.Text = _settings.MySqlUsername ?? "root";
             MySqlPasswordBox.Password = _settings.MySqlPassword ?? "";
+        }
+
+        private void LoadTags()
+        {
+            TagsListBox.ItemsSource = _tagViewModel.Tags;
+        }
+
+        private void TagsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (TagsListBox.SelectedItem is Tag tag)
+            {
+                TagNameTextBox.Text = tag.Name;
+                TagClassTextBox.Text = tag.Class ?? string.Empty;
+                TagColorTextBox.Text = tag.Color ?? "#0078D4";
+                UpdateColorPreview();
+            }
+        }
+
+        private void TagColorTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateColorPreview();
+        }
+
+        private void UpdateColorPreview()
+        {
+            try
+            {
+                var colorText = TagColorTextBox.Text;
+                if (!string.IsNullOrWhiteSpace(colorText))
+                {
+                    var color = (Color)ColorConverter.ConvertFromString(colorText);
+                    ColorPreviewBorder.Background = new SolidColorBrush(color);
+                }
+            }
+            catch
+            {
+                // Invalid color, keep previous
+            }
+        }
+
+        private void ColorButton_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Border border && border.Tag is string colorHex)
+            {
+                TagColorTextBox.Text = colorHex;
+            }
+        }
+
+        private void SaveTag_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(TagNameTextBox.Text))
+                {
+                    MessageBox.Show(
+                        FastPin.Resources.LocalizationService.GetString("PleaseEnterTagName"),
+                        FastPin.Resources.LocalizationService.GetString("Error"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                var colorText = TagColorTextBox.Text;
+                
+                if (TagsListBox.SelectedItem is Tag selectedTag)
+                {
+                    // Update existing tag
+                    selectedTag.Name = TagNameTextBox.Text;
+                    selectedTag.Class = TagClassTextBox.Text;
+                    selectedTag.Color = colorText;
+                    _tagViewModel.SaveTagCommand.Execute(null);
+                }
+                else
+                {
+                    // Create new tag
+                    _tagViewModel.EditingTagName = TagNameTextBox.Text;
+                    _tagViewModel.EditingTagClass = TagClassTextBox.Text;
+                    _tagViewModel.EditingTagColor = colorText;
+                    _tagViewModel.SaveTagCommand.Execute(null);
+                }
+
+                LoadTags();
+                ClearEditor();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"{FastPin.Resources.LocalizationService.GetString("Error")}: {ex.Message}",
+                    FastPin.Resources.LocalizationService.GetString("Error"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private void NewTag_Click(object sender, RoutedEventArgs e)
+        {
+            TagsListBox.SelectedItem = null;
+            ClearEditor();
+        }
+
+        private void ClearEditor()
+        {
+            TagNameTextBox.Text = string.Empty;
+            TagClassTextBox.Text = string.Empty;
+            TagColorTextBox.Text = "#0078D4";
+        }
+
+        private void DeleteTag_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Tag tag)
+            {
+                var result = MessageBox.Show(
+                    $"{FastPin.Resources.LocalizationService.GetString("ConfirmDeleteTag")}: {tag.Name}?",
+                    FastPin.Resources.LocalizationService.GetString("Confirm"),
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _tagViewModel.DeleteTagCommand.Execute(tag);
+                    LoadTags();
+                    ClearEditor();
+                }
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -119,6 +256,12 @@ namespace FastPin
                     ? Visibility.Visible 
                     : Visibility.Collapsed;
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            _tagViewModel?.Dispose();
         }
     }
 }
