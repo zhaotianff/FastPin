@@ -4,7 +4,7 @@
         xmlns:conv="clr-namespace:FastPin.Converters"
         xmlns:models="clr-namespace:FastPin.Models"
         Title="Clipboard Preview" 
-        Height="250" Width="350"
+        Height="350" Width="400"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -39,7 +39,7 @@
                        Margin="0,0,0,10"/>
 
             <!-- Content Preview -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
                 <Grid>
                     <!-- Text Preview -->
                     <TextBlock Text="{Binding ClipboardPreviewText}" 
@@ -139,17 +139,6 @@
                                             VerticalAlignment="Center">
                                         <Button.Style>
                                             <Style TargetType="Button">
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="{TemplateBinding Background}" 
-                                                                    CornerRadius="8"
-                                                                    Padding="{TemplateBinding Padding}">
-                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
                                                         <Setter Property="Background" Value="#F0F0F0"/>
@@ -171,17 +160,18 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0"
-                             Text="{Binding PreviewNewTagName, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource ModernTextBoxStyle}"
-                             FontSize="11"
-                             Padding="6,4"
-                             Margin="0,0,5,0">
-                        <TextBox.InputBindings>
+                    <ComboBox Grid.Column="0"
+                              Text="{Binding PreviewNewTagName, UpdateSourceTrigger=PropertyChanged}"
+                              ItemsSource="{Binding AllTags}"
+                              IsEditable="True"
+                              FontSize="11"
+                              Padding="6,4"
+                              Margin="0,0,5,0">
+                        <ComboBox.InputBindings>
                             <KeyBinding Key="Enter" 
                                         Command="{Binding AddPreviewTagCommand}"/>
-                        </TextBox.InputBindings>
-                    </TextBox>
+                        </ComboBox.InputBindings>
+                    </ComboBox>
                     <TextBlock Grid.Column="0" 
                                Text="{conv:Localize AddTag}" 
                                Margin="8,0,0,0" 
