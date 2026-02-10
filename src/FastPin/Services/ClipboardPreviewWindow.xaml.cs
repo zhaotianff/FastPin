@@ -46,8 +46,8 @@ namespace FastPin.Services
                     // Set base dimensions for preview
                     const double maxPreviewWidth = 500;
                     const double maxPreviewHeight = 400;
-                    const double minPreviewWidth = 250;
-                    const double minPreviewHeight = 200;
+                    const double minPreviewWidth = 300;
+                    const double minPreviewHeight = 250;
 
                     double previewWidth;
                     double previewHeight;
@@ -76,9 +76,9 @@ namespace FastPin.Services
                         }
                     }
 
-                    // Add padding for borders and buttons (approximately 100px total)
+                    // Add padding for borders and buttons (approximately 140px total for tags and buttons)
                     Width = Math.Max(minPreviewWidth, previewWidth + 60);
-                    Height = Math.Max(minPreviewHeight, previewHeight + 120);
+                    Height = Math.Max(minPreviewHeight, previewHeight + 140);
                 }
             }
         }
