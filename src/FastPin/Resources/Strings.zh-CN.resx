@@ -246,4 +246,22 @@
   <data name="ManageTags" xml:space="preserve">
     <value>管理标签</value>
   </data>
+  <data name="PinActions" xml:space="preserve">
+    <value>固定操作</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>筛选</value>
+  </data>
+  <data name="ViewOptions" xml:space="preserve">
+    <value>视图选项</value>
+  </data>
+  <data name="PleaseEnterTagName" xml:space="preserve">
+    <value>请输入标签名称</value>
+  </data>
+  <data name="ConfirmDeleteTag" xml:space="preserve">
+    <value>确定要删除此标签吗</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>确认</value>
+  </data>
 </root>

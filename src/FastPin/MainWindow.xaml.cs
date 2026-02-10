@@ -95,6 +95,19 @@ public partial class MainWindow : Window
         }
     }
 
+    private void DrawerMenuButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Toggle drawer visibility
+        if (DrawerPanel.Visibility == Visibility.Visible)
+        {
+            DrawerPanel.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            DrawerPanel.Visibility = Visibility.Visible;
+        }
+    }
+
     private void MinimizeButton_Click(object sender, RoutedEventArgs e)
     {
         WindowState = WindowState.Minimized;

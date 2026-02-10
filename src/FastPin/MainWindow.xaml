@@ -26,7 +26,6 @@
     <Grid x:Name="MainGrid" Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -34,10 +33,83 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="20,15">
             <Grid>
-                <TextBlock Text="FastPin" FontSize="24" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                <!-- Hamburger Menu Button (Left) -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Button Content="☰" 
+                            Click="DrawerMenuButton_Click"
+                            Width="40" Height="30"
+                            Foreground="White"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="20"
+                            VerticalContentAlignment="Center"
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            ToolTip="Menu">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#106EBE"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+                
+                <TextBlock Text="FastPin" FontSize="24" FontWeight="Bold" Foreground="White" VerticalAlignment="Center" Margin="50,0,0,0"/>
                 
                 <!-- Custom Window Control Buttons -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <!-- Settings Button -->
+                    <Button Content="⚙" 
+                            Click="SettingsButton_Click"
+                            Width="40" Height="30"
+                            Margin="0,0,5,0"
+                            Foreground="White"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="18"
+                            VerticalContentAlignment="Center"
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            ToolTip="Settings">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderThickness="0"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#106EBE"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    
                     <!-- Minimize Button -->
                     <Button Content="─" 
                             Click="MinimizeButton_Click"
@@ -146,125 +218,205 @@
             </Grid>
         </Border>
 
-        <!-- Toolbar -->
-        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="15,10" 
-                BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- First Row: Search and Action Buttons -->
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Search Box -->
-                    <Grid Grid.Column="0" Margin="0,0,10,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0" 
-                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource ModernTextBoxStyle}"
-                                 FontSize="14">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
-                            </TextBox.InputBindings>
-                        </TextBox>
-                        <TextBlock Grid.Column="0" Text="{conv:Localize SearchPlaceholder}" 
-                                   Margin="10,0,0,0" 
-                                   VerticalAlignment="Center"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   IsHitTestVisible="False">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding SearchText}" Value="">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <Button Grid.Column="1" Content="✕" 
-                                Command="{Binding ClearSearchCommand}"
-                                Margin="5,0,0,0" Width="30"
+        <!-- Drawer Menu Panel -->
+        <Border x:Name="DrawerPanel"
+                Grid.Row="1"
+                Width="320"
+                HorizontalAlignment="Left"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,1,0"
+                Panel.ZIndex="100"
+                Visibility="Collapsed">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.3"/>
+            </Border.Effect>
+            
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="20">
+                    <!-- Drawer Header -->
+                    <Grid Margin="0,0,0,20">
+                        <TextBlock Text="Menu" 
+                                   FontSize="20" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Button Content="✕" 
+                                Click="DrawerMenuButton_Click"
+                                Width="30" Height="30"
+                                HorizontalAlignment="Right"
                                 Style="{StaticResource ModernButtonStyle}"
-                                Visibility="{Binding SearchText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                Background="Transparent"
+                                Foreground="{StaticResource TextPrimaryBrush}"
+                                FontSize="16"/>
                     </Grid>
 
-                    <!-- Action Buttons -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Content="{conv:Localize PinText}" Command="{Binding PinTextCommand}" 
-                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                        <Button Content="{conv:Localize PinImage}" Command="{Binding PinImageCommand}"
-                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                        <Button Content="{conv:Localize PinFile}" Command="{Binding PinFileCommand}"
-                                Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
-                        <Button Content="{conv:Localize ManageTags}" Command="{Binding OpenTagManagementCommand}"
-                                Style="{StaticResource ModernButtonStyle}" 
-                                Background="#008272"
-                                Margin="5,0"/>
-                        <Button Content="{conv:Localize Settings}" Click="SettingsButton_Click"
-                                Style="{StaticResource ModernButtonStyle}" 
-                                Background="#666666"
-                                Margin="5,0"/>
-                        <CheckBox IsChecked="{Binding GroupByDate}" 
-                                  Content="{conv:Localize GroupByDate}" 
-                                  VerticalAlignment="Center"
-                                  Margin="15,0,0,0"
-                                  FontSize="12"
-                                  Style="{StaticResource ModernCheckBoxStyle}"/>
-                    </StackPanel>
-                </Grid>
+                    <!-- Search Section -->
+                    <Border Background="{StaticResource BackgroundBrush}" 
+                            BorderBrush="{StaticResource BorderBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="6" 
+                            Padding="15" 
+                            Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="{conv:Localize Search}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" 
+                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
+                                         FontSize="14">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                <TextBlock Grid.Column="0" 
+                                           Text="{conv:Localize SearchPlaceholder}" 
+                                           Margin="10,0,0,0" 
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           IsHitTestVisible="False">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SearchText}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <Button Grid.Column="1" 
+                                        Content="✕" 
+                                        Command="{Binding ClearSearchCommand}"
+                                        Margin="5,0,0,0" 
+                                        Width="30"
+                                        Style="{StaticResource ModernButtonStyle}"
+                                        Visibility="{Binding SearchText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
-                <!-- Second Row: Filters -->
-                <Grid Grid.Row="1" Margin="0,10,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                    <!-- Pin Actions Section -->
+                    <Border Background="{StaticResource BackgroundBrush}" 
+                            BorderBrush="{StaticResource BorderBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="6" 
+                            Padding="15" 
+                            Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="{conv:Localize PinActions}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,10"/>
+                            <Button Content="{conv:Localize PinText}" 
+                                    Command="{Binding PinTextCommand}" 
+                                    Style="{StaticResource ModernButtonStyle}" 
+                                    Margin="0,0,0,8"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="0,10"/>
+                            <Button Content="{conv:Localize PinImage}" 
+                                    Command="{Binding PinImageCommand}"
+                                    Style="{StaticResource ModernButtonStyle}" 
+                                    Margin="0,0,0,8"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="0,10"/>
+                            <Button Content="{conv:Localize PinFile}" 
+                                    Command="{Binding PinFileCommand}"
+                                    Style="{StaticResource ModernButtonStyle}"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="0,10"/>
+                        </StackPanel>
+                    </Border>
 
-                    <!-- Date Picker -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,15,0">
-                        <TextBlock Text="{conv:Localize FilterByDate}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-                        <DatePicker SelectedDate="{Binding SelectedDate}" Width="150" FontSize="12" Style="{StaticResource ModernDatePickerStyle}"/>
-                    </StackPanel>
+                    <!-- Filters Section -->
+                    <Border Background="{StaticResource BackgroundBrush}" 
+                            BorderBrush="{StaticResource BorderBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="6" 
+                            Padding="15" 
+                            Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="{conv:Localize Filters}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,10"/>
+                            
+                            <!-- Date Filter -->
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="{conv:Localize FilterByDate}" 
+                                           FontSize="12" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <DatePicker SelectedDate="{Binding SelectedDate}" 
+                                            FontSize="12" 
+                                            Style="{StaticResource ModernDatePickerStyle}"
+                                            HorizontalAlignment="Stretch"/>
+                            </StackPanel>
 
-                    <!-- Type Filter -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,15,0">
-                        <TextBlock Text="{conv:Localize FilterByType}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
-                        <ComboBox Width="120" FontSize="12" SelectedValue="{Binding SelectedItemType}" Style="{StaticResource ModernComboBoxStyle}">
-                            <ComboBox.Items>
-                                <ComboBoxItem Content="{conv:Localize All}" Tag="{x:Null}" IsSelected="True"/>
-                                <ComboBoxItem Content="{conv:Localize Text}" Tag="0"/>
-                                <ComboBoxItem Content="{conv:Localize Image}" Tag="1"/>
-                                <ComboBoxItem Content="{conv:Localize File}" Tag="2"/>
-                            </ComboBox.Items>
-                            <ComboBox.SelectedValuePath>Tag</ComboBox.SelectedValuePath>
-                        </ComboBox>
-                    </StackPanel>
+                            <!-- Type Filter -->
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="{conv:Localize FilterByType}" 
+                                           FontSize="12" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <ComboBox FontSize="12" 
+                                          SelectedValue="{Binding SelectedItemType}" 
+                                          Style="{StaticResource ModernComboBoxStyle}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Content="{conv:Localize All}" Tag="{x:Null}" IsSelected="True"/>
+                                        <ComboBoxItem Content="{conv:Localize Text}" Tag="0"/>
+                                        <ComboBoxItem Content="{conv:Localize Image}" Tag="1"/>
+                                        <ComboBoxItem Content="{conv:Localize File}" Tag="2"/>
+                                    </ComboBox.Items>
+                                    <ComboBox.SelectedValuePath>Tag</ComboBox.SelectedValuePath>
+                                </ComboBox>
+                            </StackPanel>
 
-                    <!-- Clear Filters Button -->
-                    <Button Grid.Column="2" Content="{conv:Localize ClearFilters}" 
-                            Command="{Binding ClearFiltersCommand}"
-                            Style="{StaticResource ModernButtonStyle}" 
-                            Background="#666666"
-                            FontSize="12" Padding="10,4"/>
-                </Grid>
-            </Grid>
+                            <Button Content="{conv:Localize ClearFilters}" 
+                                    Command="{Binding ClearFiltersCommand}"
+                                    Style="{StaticResource ModernButtonStyle}" 
+                                    Background="#666666"
+                                    FontSize="12" 
+                                    Padding="0,8"
+                                    HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- View Options Section -->
+                    <Border Background="{StaticResource BackgroundBrush}" 
+                            BorderBrush="{StaticResource BorderBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="6" 
+                            Padding="15">
+                        <StackPanel>
+                            <TextBlock Text="{conv:Localize ViewOptions}" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,10"/>
+                            <CheckBox IsChecked="{Binding GroupByDate}" 
+                                      Content="{conv:Localize GroupByDate}" 
+                                      FontSize="12"
+                                      Style="{StaticResource ModernCheckBoxStyle}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
 
         <!-- Main Content Area -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <Grid Margin="15">
                 <ItemsControl ItemsSource="{Binding GroupedItems}" 
                               Visibility="{Binding GroupByDate, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -916,7 +1068,7 @@
         </ScrollViewer>
 
         <!-- Status Bar -->
-        <Border Grid.Row="3" Background="{StaticResource SurfaceBrush}" 
+        <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" 
                 BorderBrush="{StaticResource BorderBrush}" 
                 BorderThickness="0,1,0,0" 
                 Padding="15,8">
