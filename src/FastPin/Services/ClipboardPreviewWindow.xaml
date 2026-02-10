@@ -201,7 +201,7 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </TextBlock>
+                        </TextBlock.Style>
                     </TextBlock>
                     <Button Grid.Column="1"
                             Content="+"
