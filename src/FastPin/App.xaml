@@ -219,7 +219,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="BorderElement" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                             </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="BorderElement" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                                 <Setter TargetName="BorderElement" Property="BorderThickness" Value="2"/>
                             </Trigger>
