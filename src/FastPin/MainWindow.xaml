@@ -408,25 +408,41 @@
                                                             </ItemsControl.ItemsPanel>
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <Border CornerRadius="3" 
-                                                                            Padding="8,3" 
-                                                                            Margin="0,0,5,5">
-                                                                        <Border.Background>
-                                                                            <SolidColorBrush Color="{Binding Color, TargetNullValue=#0078D4}"/>
-                                                                        </Border.Background>
+                                                                    <!-- Pinterest-style tag: rounded pill with shadow -->
+                                                                    <Border CornerRadius="12" 
+                                                                            Padding="10,5" 
+                                                                            Margin="0,0,6,6"
+                                                                            Background="White"
+                                                                            BorderThickness="0">
+                                                                        <Border.Effect>
+                                                                            <DropShadowEffect BlurRadius="8" 
+                                                                                              ShadowDepth="2" 
+                                                                                              Opacity="0.2" 
+                                                                                              Direction="270"/>
+                                                                        </Border.Effect>
                                                                         <StackPanel Orientation="Horizontal">
+                                                                            <!-- Tag color indicator -->
+                                                                            <Ellipse Width="8" 
+                                                                                     Height="8" 
+                                                                                     VerticalAlignment="Center"
+                                                                                     Margin="0,0,6,0">
+                                                                                <Ellipse.Fill>
+                                                                                    <SolidColorBrush Color="{Binding Color, TargetNullValue=#0078D4}"/>
+                                                                                </Ellipse.Fill>
+                                                                            </Ellipse>
                                                                             <TextBlock Text="{Binding Name}" 
                                                                                        FontSize="11" 
-                                                                                       Foreground="White"
+                                                                                       FontWeight="Medium"
+                                                                                       Foreground="#333333"
                                                                                        VerticalAlignment="Center"/>
                                                                             <Button Content="✕"
                                                                                     Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                                     CommandParameter="{Binding Name}"
                                                                                     FontSize="10"
-                                                                                    Foreground="White"
+                                                                                    Foreground="#999999"
                                                                                     Background="Transparent"
                                                                                     BorderThickness="0"
-                                                                                    Margin="5,0,0,0"
+                                                                                    Margin="6,0,0,0"
                                                                                     Padding="2"
                                                                                     Width="16" Height="16"
                                                                                     Cursor="Hand"
@@ -446,7 +462,8 @@
                                                                                         </Setter>
                                                                                         <Style.Triggers>
                                                                                             <Trigger Property="IsMouseOver" Value="True">
-                                                                                                <Setter Property="Background" Value="#40FFFFFF"/>
+                                                                                                <Setter Property="Background" Value="#F0F0F0"/>
+                                                                                                <Setter Property="Foreground" Value="#333333"/>
                                                                                             </Trigger>
                                                                                         </Style.Triggers>
                                                                                     </Style>
@@ -459,53 +476,10 @@
                                                         </ItemsControl>
 
                                                         <!-- Add Tag Section -->
-                                                        <Grid Grid.Row="1" Margin="0,5,0,5">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBox Grid.Column="0"
-                                                                     Text="{Binding DataContext.NewTagName, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
-                                                                     Style="{StaticResource ModernTextBoxStyle}"
-                                                                     FontSize="11"
-                                                                     Padding="6,4"
-                                                                     Margin="0,0,5,0">
-                                                                <TextBox.InputBindings>
-                                                                    <KeyBinding Key="Enter" 
-                                                                                Command="{Binding DataContext.AddTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
-                                                                </TextBox.InputBindings>
-                                                            </TextBox>
-                                                            <TextBlock Grid.Column="0" 
-                                                                       Text="{conv:Localize AddTag}" 
-                                                                       Margin="8,0,0,0" 
-                                                                       VerticalAlignment="Center"
-                                                                       FontSize="11"
-                                                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                                                       IsHitTestVisible="False">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding DataContext.NewTagName, RelativeSource={RelativeSource AncestorType=Window}}" Value="">
-                                                                                <Setter Property="Visibility" Value="Visible"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                            <Button Grid.Column="1"
-                                                                    Content="+"
-                                                                    Command="{Binding DataContext.AddTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                    Style="{StaticResource ModernButtonStyle}"
-                                                                    Background="#008272"
-                                                                    Width="30"
-                                                                    Padding="0"
-                                                                    FontSize="16"
-                                                                    FontWeight="Bold"/>
-                                                        </Grid>
+                                                        <!-- Removed: Tag selection moved to preview window -->
 
                                                         <!-- Actions -->
-                                                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
                                                             <Button Content="{conv:Localize Copy}" 
                                                                     Command="{Binding DataContext.CopyItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding}"

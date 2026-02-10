@@ -66,6 +66,36 @@ namespace FastPin.Data
                         }
                     }
 
+                    // Check if RichTextContent column exists in PinnedItems table
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = "PRAGMA table_info(PinnedItems)";
+                        using (var reader = command.ExecuteReader())
+                        {
+                            bool hasRichTextContentColumn = false;
+                            while (reader.Read())
+                            {
+                                var columnName = reader.GetString(1);
+                                if (columnName.Equals("RichTextContent", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    hasRichTextContentColumn = true;
+                                    break;
+                                }
+                            }
+
+                            // Add RichTextContent column if it doesn't exist
+                            if (!hasRichTextContentColumn)
+                            {
+                                reader.Close();
+                                using (var alterCommand = connection.CreateCommand())
+                                {
+                                    alterCommand.CommandText = "ALTER TABLE PinnedItems ADD COLUMN RichTextContent TEXT NULL";
+                                    alterCommand.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+
                     connection.Close();
                 }
             }
@@ -99,6 +129,25 @@ namespace FastPin.Data
                     using var alterCommand = connection.CreateCommand();
                     alterCommand.CommandText = "ALTER TABLE Tags ADD COLUMN Class VARCHAR(50) NULL";
                     alterCommand.ExecuteNonQuery();
+                }
+
+                // Check if RichTextContent column exists in PinnedItems table
+                using var command2 = connection.CreateCommand();
+                command2.CommandText = @"
+                    SELECT COUNT(*) 
+                    FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'PinnedItems' 
+                    AND COLUMN_NAME = 'RichTextContent'";
+                
+                var result2 = command2.ExecuteScalar();
+                var hasRichTextContentColumn = result2 != null && Convert.ToInt32(result2) > 0;
+
+                if (!hasRichTextContentColumn)
+                {
+                    using var alterCommand2 = connection.CreateCommand();
+                    alterCommand2.CommandText = "ALTER TABLE PinnedItems ADD COLUMN RichTextContent TEXT NULL";
+                    alterCommand2.ExecuteNonQuery();
                 }
             }
             catch (Exception)
