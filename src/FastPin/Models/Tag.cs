@@ -23,6 +23,11 @@ namespace FastPin.Models
         public string? Color { get; set; }
 
         /// <summary>
+        /// Class/Category for the tag (e.g., "Work", "Personal", "Project")
+        /// </summary>
+        public string? Class { get; set; }
+
+        /// <summary>
         /// Items associated with this tag
         /// </summary>
         public virtual ICollection<ItemTag> ItemTags { get; set; } = new List<ItemTag>();

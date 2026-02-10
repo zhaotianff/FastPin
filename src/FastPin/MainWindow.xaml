@@ -207,6 +207,10 @@
                                 Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
                         <Button Content="{conv:Localize PinFile}" Command="{Binding PinFileCommand}"
                                 Style="{StaticResource ModernButtonStyle}" Margin="5,0"/>
+                        <Button Content="{conv:Localize ManageTags}" Command="{Binding OpenTagManagementCommand}"
+                                Style="{StaticResource ModernButtonStyle}" 
+                                Background="#008272"
+                                Margin="5,0"/>
                         <Button Content="{conv:Localize Settings}" Click="SettingsButton_Click"
                                 Style="{StaticResource ModernButtonStyle}" 
                                 Background="#666666"
@@ -392,6 +396,7 @@
                                                         <Grid.RowDefinitions>
                                                             <RowDefinition Height="Auto"/>
                                                             <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
 
                                                         <!-- Tags -->
@@ -403,20 +408,104 @@
                                                             </ItemsControl.ItemsPanel>
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <Border Background="{StaticResource PrimaryBrush}" 
-                                                                            CornerRadius="3" 
+                                                                    <Border CornerRadius="3" 
                                                                             Padding="8,3" 
                                                                             Margin="0,0,5,5">
-                                                                        <TextBlock Text="{Binding}" 
-                                                                                   FontSize="11" 
-                                                                                   Foreground="White"/>
+                                                                        <Border.Background>
+                                                                            <SolidColorBrush Color="{Binding Color, TargetNullValue=#0078D4}"/>
+                                                                        </Border.Background>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <TextBlock Text="{Binding Name}" 
+                                                                                       FontSize="11" 
+                                                                                       Foreground="White"
+                                                                                       VerticalAlignment="Center"/>
+                                                                            <Button Content="✕"
+                                                                                    Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                    CommandParameter="{Binding Name}"
+                                                                                    FontSize="10"
+                                                                                    Foreground="White"
+                                                                                    Background="Transparent"
+                                                                                    BorderThickness="0"
+                                                                                    Margin="5,0,0,0"
+                                                                                    Padding="2"
+                                                                                    Width="16" Height="16"
+                                                                                    Cursor="Hand"
+                                                                                    VerticalAlignment="Center">
+                                                                                <Button.Style>
+                                                                                    <Style TargetType="Button">
+                                                                                        <Setter Property="Template">
+                                                                                            <Setter.Value>
+                                                                                                <ControlTemplate TargetType="Button">
+                                                                                                    <Border Background="{TemplateBinding Background}" 
+                                                                                                            CornerRadius="8"
+                                                                                                            Padding="{TemplateBinding Padding}">
+                                                                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                                    </Border>
+                                                                                                </ControlTemplate>
+                                                                                            </Setter.Value>
+                                                                                        </Setter>
+                                                                                        <Style.Triggers>
+                                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                                <Setter Property="Background" Value="#40FFFFFF"/>
+                                                                                            </Trigger>
+                                                                                        </Style.Triggers>
+                                                                                    </Style>
+                                                                                </Button.Style>
+                                                                            </Button>
+                                                                        </StackPanel>
                                                                     </Border>
                                                                 </DataTemplate>
                                                             </ItemsControl.ItemTemplate>
                                                         </ItemsControl>
 
+                                                        <!-- Add Tag Section -->
+                                                        <Grid Grid.Row="1" Margin="0,5,0,5">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBox Grid.Column="0"
+                                                                     Text="{Binding DataContext.NewTagName, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"
+                                                                     Style="{StaticResource ModernTextBoxStyle}"
+                                                                     FontSize="11"
+                                                                     Padding="6,4"
+                                                                     Margin="0,0,5,0">
+                                                                <TextBox.InputBindings>
+                                                                    <KeyBinding Key="Enter" 
+                                                                                Command="{Binding DataContext.AddTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                                </TextBox.InputBindings>
+                                                            </TextBox>
+                                                            <TextBlock Grid.Column="0" 
+                                                                       Text="{conv:Localize AddTag}" 
+                                                                       Margin="8,0,0,0" 
+                                                                       VerticalAlignment="Center"
+                                                                       FontSize="11"
+                                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                                       IsHitTestVisible="False">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding DataContext.NewTagName, RelativeSource={RelativeSource AncestorType=Window}}" Value="">
+                                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                            <Button Grid.Column="1"
+                                                                    Content="+"
+                                                                    Command="{Binding DataContext.AddTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    Style="{StaticResource ModernButtonStyle}"
+                                                                    Background="#008272"
+                                                                    Width="30"
+                                                                    Padding="0"
+                                                                    FontSize="16"
+                                                                    FontWeight="Bold"/>
+                                                        </Grid>
+
                                                         <!-- Actions -->
-                                                        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                                                             <Button Content="{conv:Localize Copy}" 
                                                                     Command="{Binding DataContext.CopyItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                     CommandParameter="{Binding}"
@@ -561,6 +650,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
                                     <!-- Tags -->
@@ -572,13 +662,51 @@
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border Background="{StaticResource PrimaryBrush}" 
-                                                        CornerRadius="3" 
+                                                <Border CornerRadius="3" 
                                                         Padding="8,3" 
                                                         Margin="0,0,5,5">
-                                                    <TextBlock Text="{Binding}" 
-                                                               FontSize="11" 
-                                                               Foreground="White"/>
+                                                    <Border.Background>
+                                                        <SolidColorBrush Color="{Binding Color, TargetNullValue=#0078D4}"/>
+                                                    </Border.Background>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Name}" 
+                                                                   FontSize="11" 
+                                                                   Foreground="White"
+                                                                   VerticalAlignment="Center"/>
+                                                        <Button Content="✕"
+                                                                Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding Name}"
+                                                                FontSize="10"
+                                                                Foreground="White"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Margin="5,0,0,0"
+                                                                Padding="2"
+                                                                Width="16" Height="16"
+                                                                Cursor="Hand"
+                                                                VerticalAlignment="Center">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button">
+                                                                    <Setter Property="Template">
+                                                                        <Setter.Value>
+                                                                            <ControlTemplate TargetType="Button">
+                                                                                <Border Background="{TemplateBinding Background}" 
+                                                                                        CornerRadius="8"
+                                                                                        Padding="{TemplateBinding Padding}">
+                                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                                </Border>
+                                                                            </ControlTemplate>
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#40FFFFFF"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                    </StackPanel>
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

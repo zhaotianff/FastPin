@@ -137,7 +137,7 @@ namespace FastPin.ViewModels
 
         public string DisplayDate => _model.CreatedDate.ToString("MMM dd, yyyy");
 
-        public ObservableCollection<string> Tags { get; } = new ObservableCollection<string>();
+        public ObservableCollection<TagViewModel> Tags { get; } = new ObservableCollection<TagViewModel>();
 
         public PinnedItem Model => _model;
 
@@ -210,7 +210,7 @@ namespace FastPin.ViewModels
             Tags.Clear();
             foreach (var itemTag in _model.ItemTags)
             {
-                Tags.Add(itemTag.Tag.Name);
+                Tags.Add(new TagViewModel(itemTag.Tag));
             }
         }
 
