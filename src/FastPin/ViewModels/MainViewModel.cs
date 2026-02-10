@@ -74,6 +74,8 @@ namespace FastPin.ViewModels
             ViewImageCommand = new RelayCommand<PinnedItemViewModel>(ViewImage, item => item != null && item.Type == ItemType.Image);
             AddPreviewTagCommand = new RelayCommand(AddPreviewTag, () => !string.IsNullOrWhiteSpace(PreviewNewTagName));
             RemovePreviewTagCommand = new RelayCommand<string>(RemovePreviewTag);
+            ShowAddTagPopupCommand = new RelayCommand<PinnedItemViewModel>(ShowAddTagPopup);
+            SelectExistingTagCommand = new RelayCommand<string>(SelectExistingTag);
 
             LoadItems();
             LoadAllTags();
@@ -167,6 +169,8 @@ namespace FastPin.ViewModels
         public ICommand ViewImageCommand { get; }
         public ICommand AddPreviewTagCommand { get; }
         public ICommand RemovePreviewTagCommand { get; }
+        public ICommand ShowAddTagPopupCommand { get; }
+        public ICommand SelectExistingTagCommand { get; }
 
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
@@ -628,6 +632,31 @@ namespace FastPin.ViewModels
                 MessageBox.Show($"Error removing tag: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void ShowAddTagPopup(PinnedItemViewModel? item)
+        {
+            if (item != null)
+            {
+                SelectedItem = item;
+                NewTagName = string.Empty;
+                // The popup will be shown by the event handler in MainWindow.xaml.cs
+                OnAddTagPopupRequested?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void SelectExistingTag(string? tagName)
+        {
+            if (!string.IsNullOrWhiteSpace(tagName))
+            {
+                NewTagName = tagName;
+                // Automatically add the tag when selected from the list
+                AddTag();
+                OnAddTagPopupClosed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public event EventHandler? OnAddTagPopupRequested;
+        public event EventHandler? OnAddTagPopupClosed;
 
         private void AddPreviewTag()
         {

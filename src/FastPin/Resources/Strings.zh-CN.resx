@@ -198,6 +198,12 @@
   <data name="Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
+  <data name="Add" xml:space="preserve">
+    <value>添加</value>
+  </data>
+  <data name="ExistingTags" xml:space="preserve">
+    <value>现有标签</value>
+  </data>
   <data name="SettingsSavedMessage" xml:space="preserve">
     <value>设置保存成功！请重新启动应用程序以使更改生效。</value>
   </data>
@@ -224,6 +230,9 @@
   </data>
   <data name="NewTag" xml:space="preserve">
     <value>新建标签</value>
+  </data>
+  <data name="QuickColors" xml:space="preserve">
+    <value>快速颜色</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>关闭</value>

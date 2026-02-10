@@ -24,6 +24,10 @@ public partial class MainWindow : Window
         // Subscribe to hotkey event
         _viewModel.HotkeyPressed += ViewModel_HotkeyPressed;
         
+        // Subscribe to popup events
+        _viewModel.OnAddTagPopupRequested += (s, e) => AddTagPopup.IsOpen = true;
+        _viewModel.OnAddTagPopupClosed += (s, e) => AddTagPopup.IsOpen = false;
+        
         // Initialize notify icon
         _notifyIconService = new NotifyIconService();
         _notifyIconService.Initialize(_viewModel);
@@ -113,5 +117,17 @@ public partial class MainWindow : Window
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void CancelAddTag_Click(object sender, RoutedEventArgs e)
+    {
+        AddTagPopup.IsOpen = false;
+        _viewModel.NewTagName = string.Empty;
+    }
+
+    private void AddTagButton_Click(object sender, RoutedEventArgs e)
+    {
+        AddTagPopup.IsOpen = false;
+        _viewModel.NewTagName = string.Empty;
     }
 }
