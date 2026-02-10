@@ -130,4 +130,20 @@ public partial class MainWindow : Window
         AddTagPopup.IsOpen = false;
         _viewModel.NewTagName = string.Empty;
     }
+
+    private void RemoveTagButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.Button button)
+        {
+            var item = button.Tag as PinnedItemViewModel;
+            var tagName = button.CommandParameter as string;
+            
+            if (item != null && !string.IsNullOrWhiteSpace(tagName))
+            {
+                // Set the selected item so RemoveTag can work
+                _viewModel.SelectedItem = item;
+                _viewModel.RemoveTagCommand.Execute(tagName);
+            }
+        }
+    }
 }

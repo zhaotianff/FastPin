@@ -438,7 +438,8 @@
                                                                                            Foreground="#333333"
                                                                                            VerticalAlignment="Center"/>
                                                                                 <Button Content="✕"
-                                                                                        Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                                        Click="RemoveTagButton_Click"
+                                                                                        Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Border, AncestorLevel=2}}"
                                                                                         CommandParameter="{Binding Name}"
                                                                                         FontSize="10"
                                                                                         Foreground="#999999"
@@ -692,7 +693,8 @@
                                                                        Foreground="White"
                                                                        VerticalAlignment="Center"/>
                                                             <Button Content="✕"
-                                                                    Command="{Binding DataContext.RemoveTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    Click="RemoveTagButton_Click"
+                                                                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Border, AncestorLevel=2}}"
                                                                     CommandParameter="{Binding Name}"
                                                                     FontSize="10"
                                                                     Foreground="White"
