@@ -253,6 +253,229 @@
                                 </Border.Background>
                             </Border>
                         </Grid>
+                        
+                        <!-- Color Palette -->
+                        <TextBlock Text="{conv:Localize QuickColors}" 
+                                   FontSize="11" 
+                                   Margin="0,8,0,5"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <ItemsControl Margin="0,0,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.Items>
+                                <!-- Predefined Color Palette -->
+                                <Border Width="28" Height="28" 
+                                        Background="#0078D4" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Blue">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#0078D4"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#D13438" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Red">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#D13438"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#008272" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Green">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#008272"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#FFA500" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Orange">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#FFA500"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#9C27B0" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Purple">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#9C27B0"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#E91E63" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Pink">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#E91E63"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#795548" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Brown">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#795548"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#607D8B" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Gray">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#607D8B"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                                <Border Width="28" Height="28" 
+                                        Background="#FFEB3B" 
+                                        CornerRadius="4" 
+                                        Margin="0,0,5,5"
+                                        Cursor="Hand"
+                                        ToolTip="Yellow">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick" 
+                                                      Command="{Binding SetColorCommand}" 
+                                                      CommandParameter="#FFEB3B"/>
+                                    </Border.InputBindings>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="#333333"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+                            </ItemsControl.Items>
+                        </ItemsControl>
                     </StackPanel>
 
                     <!-- Action Buttons -->

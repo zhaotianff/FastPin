@@ -198,6 +198,12 @@
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="ExistingTags" xml:space="preserve">
+    <value>Existing Tags</value>
+  </data>
   <data name="SettingsSavedMessage" xml:space="preserve">
     <value>Settings saved successfully! Please restart the application for changes to take effect.</value>
   </data>
@@ -224,6 +230,9 @@
   </data>
   <data name="NewTag" xml:space="preserve">
     <value>New Tag</value>
+  </data>
+  <data name="QuickColors" xml:space="preserve">
+    <value>Quick Colors</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>

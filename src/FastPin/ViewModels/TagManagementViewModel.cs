@@ -30,6 +30,7 @@ namespace FastPin.ViewModels
             SaveTagCommand = new RelayCommand(SaveTag, CanSaveTag);
             NewTagCommand = new RelayCommand(NewTag);
             DeleteTagCommand = new RelayCommand<TagViewModel>(DeleteTag, tag => tag != null);
+            SetColorCommand = new RelayCommand<string>(SetColor);
 
             LoadTags();
         }
@@ -69,6 +70,7 @@ namespace FastPin.ViewModels
         public ICommand SaveTagCommand { get; }
         public ICommand NewTagCommand { get; }
         public ICommand DeleteTagCommand { get; }
+        public ICommand SetColorCommand { get; }
 
         private void LoadTags()
         {
@@ -215,6 +217,14 @@ namespace FastPin.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Error deleting tag: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SetColor(string? colorHex)
+        {
+            if (!string.IsNullOrWhiteSpace(colorHex))
+            {
+                EditingTagColor = colorHex;
             }
         }
 
