@@ -27,6 +27,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- Header -->
@@ -81,8 +82,141 @@
                 </Grid>
             </ScrollViewer>
 
+            <!-- Tag Selection -->
+            <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Selected Tags Display -->
+                <ItemsControl Grid.Row="0" ItemsSource="{Binding PreviewItemTags}" Margin="0,0,0,5">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Pinterest-style tag: rounded pill with shadow -->
+                            <Border CornerRadius="12" 
+                                    Padding="10,5" 
+                                    Margin="0,0,6,6"
+                                    Background="White"
+                                    BorderThickness="0">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="8" 
+                                                      ShadowDepth="2" 
+                                                      Opacity="0.2" 
+                                                      Direction="270"/>
+                                </Border.Effect>
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- Tag color indicator -->
+                                    <Ellipse Width="8" 
+                                             Height="8" 
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,6,0">
+                                        <Ellipse.Fill>
+                                            <SolidColorBrush Color="{Binding Color, TargetNullValue=#0078D4}"/>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <TextBlock Text="{Binding Name}" 
+                                               FontSize="11" 
+                                               FontWeight="Medium"
+                                               Foreground="#333333"
+                                               VerticalAlignment="Center"/>
+                                    <Button Content="✕"
+                                            Command="{Binding DataContext.RemovePreviewTagCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding Name}"
+                                            FontSize="10"
+                                            Foreground="#999999"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Margin="6,0,0,0"
+                                            Padding="2"
+                                            Width="16" Height="16"
+                                            Cursor="Hand"
+                                            VerticalAlignment="Center">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}" 
+                                                                    CornerRadius="8"
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#F0F0F0"/>
+                                                        <Setter Property="Foreground" Value="#333333"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Add Tag Section -->
+                <Grid Grid.Row="1" Margin="0,5,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Text="{Binding PreviewNewTagName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource ModernTextBoxStyle}"
+                             FontSize="11"
+                             Padding="6,4"
+                             Margin="0,0,5,0">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" 
+                                        Command="{Binding AddPreviewTagCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBlock Grid.Column="0" 
+                               Text="{conv:Localize AddTag}" 
+                               Margin="8,0,0,0" 
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               IsHitTestVisible="False">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PreviewNewTagName}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding PreviewNewTagName}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock>
+                    </TextBlock>
+                    <Button Grid.Column="1"
+                            Content="+"
+                            Command="{Binding AddPreviewTagCommand}"
+                            Style="{StaticResource ModernButtonStyle}"
+                            Background="#008272"
+                            Width="30"
+                            Padding="0"
+                            FontSize="16"
+                            FontWeight="Bold"/>
+                </Grid>
+            </Grid>
+
             <!-- Action Buttons -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
                 <Button Content="{conv:Localize Pin}" 
                         Command="{Binding PinClipboardCommand}"
                         Click="PinButton_Click"

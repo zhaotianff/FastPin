@@ -26,6 +26,7 @@ namespace FastPin.ViewModels
         private readonly HotkeyService _hotkeyService;
         private string _searchText = string.Empty;
         private string _newTagName = string.Empty;
+        private string _previewNewTagName = string.Empty;
         private PinnedItemViewModel? _selectedItem;
         private bool _groupByDate = true;
         private ItemType? _selectedItemType = null;
@@ -38,6 +39,7 @@ namespace FastPin.ViewModels
         
         // Clipboard preview data
         private string? _clipboardPreviewText;
+        private string? _clipboardPreviewRichText;
         private byte[]? _clipboardPreviewImage;
         private BitmapImage? _clipboardPreviewImageSource;
         private string? _clipboardPreviewFilePath;
@@ -70,6 +72,8 @@ namespace FastPin.ViewModels
             DiscardClipboardCommand = new RelayCommand(DiscardClipboard);
             CopyItemCommand = new RelayCommand<PinnedItemViewModel>(CopyItem);
             ViewImageCommand = new RelayCommand<PinnedItemViewModel>(ViewImage, item => item != null && item.Type == ItemType.Image);
+            AddPreviewTagCommand = new RelayCommand(AddPreviewTag, () => !string.IsNullOrWhiteSpace(PreviewNewTagName));
+            RemovePreviewTagCommand = new RelayCommand<string>(RemovePreviewTag);
 
             LoadItems();
             LoadAllTags();
@@ -78,6 +82,7 @@ namespace FastPin.ViewModels
         public ObservableCollection<PinnedItemViewModel> Items { get; } = new ObservableCollection<PinnedItemViewModel>();
         public ObservableCollection<ItemGroup> GroupedItems { get; } = new ObservableCollection<ItemGroup>();
         public ObservableCollection<string> AllTags { get; } = new ObservableCollection<string>();
+        public ObservableCollection<TagViewModel> PreviewItemTags { get; } = new ObservableCollection<TagViewModel>();
 
         public bool GroupByDate
         {
@@ -113,6 +118,12 @@ namespace FastPin.ViewModels
         {
             get => _newTagName;
             set => SetProperty(ref _newTagName, value);
+        }
+
+        public string PreviewNewTagName
+        {
+            get => _previewNewTagName;
+            set => SetProperty(ref _previewNewTagName, value);
         }
 
         public ItemType? SelectedItemType
@@ -154,6 +165,8 @@ namespace FastPin.ViewModels
         public ICommand DiscardClipboardCommand { get; }
         public ICommand CopyItemCommand { get; }
         public ICommand ViewImageCommand { get; }
+        public ICommand AddPreviewTagCommand { get; }
+        public ICommand RemovePreviewTagCommand { get; }
 
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
@@ -191,6 +204,18 @@ namespace FastPin.ViewModels
                 if (Clipboard.ContainsText())
                 {
                     _clipboardPreviewText = Clipboard.GetText();
+                    
+                    // Check if clipboard contains rich text format
+                    var dataObject = Clipboard.GetDataObject();
+                    if (dataObject != null && dataObject.GetDataPresent(DataFormats.Rtf))
+                    {
+                        _clipboardPreviewRichText = dataObject.GetData(DataFormats.Rtf) as string;
+                    }
+                    else
+                    {
+                        _clipboardPreviewRichText = null;
+                    }
+                    
                     _clipboardPreviewType = ItemType.Text;
                     _clipboardPreviewImage = null;
                     _clipboardPreviewImageSource = null;
@@ -604,6 +629,58 @@ namespace FastPin.ViewModels
             }
         }
 
+        private void AddPreviewTag()
+        {
+            if (string.IsNullOrWhiteSpace(PreviewNewTagName))
+                return;
+
+            try
+            {
+                var tagName = PreviewNewTagName.Trim();
+
+                // Find or create tag in database
+                var tag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagName);
+                if (tag == null)
+                {
+                    tag = new Tag { Name = tagName };
+                    _dbContext.Tags.Add(tag);
+                    _dbContext.SaveChanges();
+                }
+
+                // Check if already in preview tags
+                if (!PreviewItemTags.Any(t => t.Name == tagName))
+                {
+                    PreviewItemTags.Add(new TagViewModel(tag));
+                }
+
+                PreviewNewTagName = string.Empty;
+                LoadAllTags();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding tag: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RemovePreviewTag(string? tagName)
+        {
+            if (string.IsNullOrWhiteSpace(tagName))
+                return;
+
+            try
+            {
+                var tag = PreviewItemTags.FirstOrDefault(t => t.Name == tagName);
+                if (tag != null)
+                {
+                    PreviewItemTags.Remove(tag);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error removing tag: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void OpenTagManagement()
         {
             var window = new TagManagementWindow();
@@ -771,6 +848,7 @@ namespace FastPin.ViewModels
                             {
                                 Type = ItemType.Text,
                                 TextContent = _clipboardPreviewText,
+                                RichTextContent = _clipboardPreviewRichText,
                                 Source = ItemSource.Clipboard,
                                 SourceApplication = _clipboardMonitor.LastClipboardSource,
                                 CreatedDate = DateTime.Now,
@@ -779,6 +857,10 @@ namespace FastPin.ViewModels
 
                             _dbContext.PinnedItems.Add(item);
                             _dbContext.SaveChanges();
+                            
+                            // Associate selected tags
+                            AssociatePreviewTags(item.Id);
+                            
                             LoadItems();
                         }
                         break;
@@ -810,6 +892,10 @@ namespace FastPin.ViewModels
 
                             _dbContext.PinnedItems.Add(item);
                             _dbContext.SaveChanges();
+                            
+                            // Associate selected tags
+                            AssociatePreviewTags(item.Id);
+                            
                             LoadItems();
                         }
                         break;
@@ -831,6 +917,10 @@ namespace FastPin.ViewModels
 
                             _dbContext.PinnedItems.Add(item);
                             _dbContext.SaveChanges();
+                            
+                            // Associate selected tags
+                            AssociatePreviewTags(item.Id);
+                            
                             LoadItems();
                         }
                         break;
@@ -847,13 +937,41 @@ namespace FastPin.ViewModels
         private void DiscardClipboard()
         {
             _clipboardPreviewText = null;
+            _clipboardPreviewRichText = null;
             _clipboardPreviewImage = null;
             _clipboardPreviewImageSource = null;
             _clipboardPreviewFilePath = null;
             _clipboardPreviewType = null;
+            PreviewItemTags.Clear();
             OnPropertyChanged(nameof(ClipboardPreviewText));
             OnPropertyChanged(nameof(ClipboardPreviewType));
             OnPropertyChanged(nameof(ClipboardPreviewImageSource));
+        }
+
+        private void AssociatePreviewTags(int itemId)
+        {
+            try
+            {
+                foreach (var tagViewModel in PreviewItemTags)
+                {
+                    var tag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagViewModel.Name);
+                    if (tag != null)
+                    {
+                        var itemTag = new ItemTag
+                        {
+                            PinnedItemId = itemId,
+                            TagId = tag.Id
+                        };
+                        _dbContext.ItemTags.Add(itemTag);
+                    }
+                }
+                _dbContext.SaveChanges();
+                PreviewItemTags.Clear();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error associating tags: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void CopyItem(PinnedItemViewModel? item)
@@ -868,7 +986,18 @@ namespace FastPin.ViewModels
                     case ItemType.Text:
                         if (!string.IsNullOrEmpty(item.TextContent))
                         {
-                            Clipboard.SetText(item.TextContent);
+                            // If rich text is available, copy it along with plain text
+                            if (!string.IsNullOrEmpty(item.RichTextContent))
+                            {
+                                var dataObject = new DataObject();
+                                dataObject.SetData(DataFormats.Text, item.TextContent);
+                                dataObject.SetData(DataFormats.Rtf, item.RichTextContent);
+                                Clipboard.SetDataObject(dataObject, true);
+                            }
+                            else
+                            {
+                                Clipboard.SetText(item.TextContent);
+                            }
                         }
                         break;
                     case ItemType.Image:

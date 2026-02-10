@@ -23,6 +23,11 @@ namespace FastPin.Models
         public string? TextContent { get; set; }
 
         /// <summary>
+        /// Rich text format content (RTF) for text items with formatting
+        /// </summary>
+        public string? RichTextContent { get; set; }
+
+        /// <summary>
         /// Image data (base64 or binary) for image items
         /// </summary>
         public byte[]? ImageData { get; set; }

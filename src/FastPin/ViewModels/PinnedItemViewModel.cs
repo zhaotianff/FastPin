@@ -39,6 +39,20 @@ namespace FastPin.ViewModels
             }
         }
 
+        public string? RichTextContent
+        {
+            get => _model.RichTextContent;
+            set
+            {
+                if (_model.RichTextContent != value)
+                {
+                    _model.RichTextContent = value;
+                    _model.ModifiedDate = DateTime.Now;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public byte[]? ImageData
         {
             get => _model.ImageData;
