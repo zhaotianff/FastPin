@@ -60,9 +60,6 @@ namespace FastPin
             // Get mouse position relative to the ImageContainer
             var mousePosition = e.GetPosition(ImageContainer);
             
-            // Get mouse position relative to the Image
-            var imagePosition = e.GetPosition(ImageControl);
-            
             // Calculate the old zoom level
             double oldZoom = _currentZoom;
             
@@ -76,16 +73,18 @@ namespace FastPin
                 _currentZoom = Math.Max(_currentZoom - ZoomStep, ZoomMin);
             }
 
-            ImageScaleTransform.ScaleX = _currentZoom;
-            ImageScaleTransform.ScaleY = _currentZoom;
-
-            // Adjust the translate transform to zoom toward the mouse cursor
-            // The idea is to keep the point under the mouse cursor at the same position
+            // Calculate zoom ratio
             double zoomRatio = _currentZoom / oldZoom;
             
-            // Update translation to keep the image point under cursor stationary
-            ImageTranslateTransform.X = mousePosition.X - (imagePosition.X * zoomRatio);
-            ImageTranslateTransform.Y = mousePosition.Y - (imagePosition.Y * zoomRatio);
+            // Adjust the translate transform to zoom toward the mouse cursor
+            // We need to adjust translation so the point under cursor stays in the same position
+            // Formula: newTranslate = mousePos - (mousePos - oldTranslate) * zoomRatio
+            ImageTranslateTransform.X = mousePosition.X - (mousePosition.X - ImageTranslateTransform.X) * zoomRatio;
+            ImageTranslateTransform.Y = mousePosition.Y - (mousePosition.Y - ImageTranslateTransform.Y) * zoomRatio;
+            
+            // Apply new scale
+            ImageScaleTransform.ScaleX = _currentZoom;
+            ImageScaleTransform.ScaleY = _currentZoom;
 
             e.Handled = true;
         }

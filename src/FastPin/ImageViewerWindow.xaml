@@ -64,8 +64,8 @@
                    RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <TransformGroup>
-                        <ScaleTransform x:Name="ImageScaleTransform" ScaleX="1" ScaleY="1"/>
                         <TranslateTransform x:Name="ImageTranslateTransform" X="0" Y="0"/>
+                        <ScaleTransform x:Name="ImageScaleTransform" ScaleX="1" ScaleY="1"/>
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
