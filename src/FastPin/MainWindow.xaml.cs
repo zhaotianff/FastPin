@@ -3,6 +3,7 @@ using System.Windows;
 using FastPin.ViewModels;
 using FastPin.Services;
 using System.Windows.Media.Animation;
+using System.Windows.Media;
 
 namespace FastPin;
 
@@ -14,14 +15,18 @@ public partial class MainWindow : Window
     private MainViewModel _viewModel;
     private NotifyIconService _notifyIconService;
     
-    private const string MaximizeSymbol = "□";
-    private const string RestoreSymbol = "❐";
+    // Pre-parsed geometry for maximize and restore icons
+    private static readonly Geometry MaximizeGeometry = Geometry.Parse("M 0,0 L 10,0 L 10,10 L 0,10 Z");
+    private static readonly Geometry RestoreGeometry = Geometry.Parse("M 0,2 L 8,2 L 8,10 L 0,10 Z M 2,0 L 10,0 L 10,8 L 8,8");
 
     public MainWindow()
     {
         InitializeComponent();
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
+        
+        // Set initial geometry for maximize/restore button
+        MaximizeRestorePath.Data = MaximizeGeometry;
         
         // Subscribe to hotkey event
         _viewModel.HotkeyPressed += ViewModel_HotkeyPressed;
@@ -150,12 +155,12 @@ public partial class MainWindow : Window
         if (WindowState == WindowState.Maximized)
         {
             WindowState = WindowState.Normal;
-            MaximizeRestoreButton.Content = MaximizeSymbol;
+            MaximizeRestorePath.Data = MaximizeGeometry;
         }
         else
         {
             WindowState = WindowState.Maximized;
-            MaximizeRestoreButton.Content = RestoreSymbol;
+            MaximizeRestorePath.Data = RestoreGeometry;
         }
     }
 
