@@ -57,10 +57,30 @@
 
                     <!-- File Preview -->
                     <Grid Visibility="{Binding ClipboardPreviewType, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=File}">
-                        <TextBlock Text="[File Preview]" 
-                                   FontSize="13" 
-                                   FontStyle="Italic"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                        <StackPanel>
+                            <TextBlock Text="📄 File" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryBrush}"
+                                       Margin="0,0,0,8"/>
+                            <TextBlock FontSize="12" 
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,4">
+                                <Run Text="Name: " FontWeight="SemiBold"/>
+                                <Run Text="{Binding ClipboardPreviewFilePath, Converter={StaticResource FilePathToNameConverter}, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock FontSize="12" 
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       Margin="0,0,0,4">
+                                <Run Text="Size: " FontWeight="SemiBold"/>
+                                <Run Text="{Binding ClipboardPreviewFilePath, Converter={StaticResource FilePathToSizeConverter}, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding ClipboardPreviewFilePath}" 
+                                       FontSize="11" 
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
                     </Grid>
 
                     <!-- No Content -->

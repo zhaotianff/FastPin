@@ -91,7 +91,15 @@ namespace FastPin.Services
 
         private void NotifyIcon_TrayLeftMouseUp(object sender, RoutedEventArgs e)
         {
-            ShowPreviewWindow();
+            // If clipboard is empty, open main window instead of preview
+            if (_viewModel?.ClipboardPreviewType == null)
+            {
+                OpenMainWindow();
+            }
+            else
+            {
+                ShowPreviewWindow();
+            }
         }
 
         private void ShowPreviewWindow()
