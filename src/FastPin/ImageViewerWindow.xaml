@@ -60,8 +60,7 @@
                    Stretch="Uniform"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Margin="50"
-                   RenderTransformOrigin="0.5,0.5">
+                   Margin="50">
                 <Image.RenderTransform>
                     <TransformGroup>
                         <TranslateTransform x:Name="ImageTranslateTransform" X="0" Y="0"/>

@@ -73,6 +73,10 @@ namespace FastPin
                 _currentZoom = Math.Max(_currentZoom - ZoomStep, ZoomMin);
             }
 
+            // Apply new scale first
+            ImageScaleTransform.ScaleX = _currentZoom;
+            ImageScaleTransform.ScaleY = _currentZoom;
+
             // Calculate zoom ratio
             double zoomRatio = _currentZoom / oldZoom;
             
@@ -81,10 +85,6 @@ namespace FastPin
             // Formula: newTranslate = mousePos - (mousePos - oldTranslate) * zoomRatio
             ImageTranslateTransform.X = mousePosition.X - (mousePosition.X - ImageTranslateTransform.X) * zoomRatio;
             ImageTranslateTransform.Y = mousePosition.Y - (mousePosition.Y - ImageTranslateTransform.Y) * zoomRatio;
-            
-            // Apply new scale
-            ImageScaleTransform.ScaleX = _currentZoom;
-            ImageScaleTransform.ScaleY = _currentZoom;
 
             e.Handled = true;
         }
