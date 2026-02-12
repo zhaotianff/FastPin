@@ -78,7 +78,7 @@ namespace FastPin.ViewModels
             ShowAddTagPopupCommand = new RelayCommand<PinnedItemViewModel>(ShowAddTagPopup);
             SelectExistingTagCommand = new RelayCommand<string>(SelectExistingTag);
 
-            LoadItems();
+            _ = LoadItemsAsync();
             LoadAllTags();
         }
 
@@ -94,7 +94,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _groupByDate, value))
                 {
-                    LoadItems();
+                    _ = LoadItemsAsync();
                 }
             }
         }
@@ -112,7 +112,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _searchText, value))
                 {
-                    LoadItems();
+                    _ = LoadItemsAsync();
                 }
             }
         }
@@ -136,7 +136,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedItemType, value))
                 {
-                    LoadItems();
+                    _ = LoadItemsAsync();
                 }
             }
         }
@@ -148,7 +148,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedDate, value))
                 {
-                    LoadItems();
+                    _ = LoadItemsAsync();
                 }
             }
         }
@@ -160,7 +160,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedTag, value))
                 {
-                    LoadItems();
+                    _ = LoadItemsAsync();
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace FastPin.ViewModels
             FastPin.Resources.LocalizationService.SetCulture(cultureName);
             
             // Reload items to update date group labels
-            LoadItems();
+            _ = LoadItemsAsync();
         }
 
         private void OnClipboardChanged(object? sender, EventArgs e)
@@ -371,7 +371,7 @@ namespace FastPin.ViewModels
                 _dbContext.SaveChanges();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                LoadItems();
+                _ = LoadItemsAsync();
             }
             catch (Exception ex)
             {
@@ -416,7 +416,7 @@ namespace FastPin.ViewModels
                 _dbContext.SaveChanges();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                LoadItems();
+                _ = LoadItemsAsync();
             }
             catch (Exception ex)
             {
@@ -459,7 +459,7 @@ namespace FastPin.ViewModels
                 }
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                LoadItems();
+                _ = LoadItemsAsync();
             }
             catch (Exception ex)
             {
@@ -544,7 +544,7 @@ namespace FastPin.ViewModels
                     _dbContext.SaveChanges();
                     
                     // Reload items to refresh both grouped and ungrouped views
-                    LoadItems();
+                    _ = LoadItemsAsync();
                 }
             }
             catch (Exception ex)
@@ -730,51 +730,56 @@ namespace FastPin.ViewModels
             
             // Refresh tags after window closes
             LoadAllTags();
-            LoadItems(); // Reload items to reflect any tag changes
+            _ = LoadItemsAsync(); // Reload items to reflect any tag changes
         }
 
-        private void LoadItems()
+        private async Task LoadItemsAsync()
         {
+            // Run database query on background thread
+            var items = await Task.Run(() =>
+            {
+                var query = _dbContext.PinnedItems
+                    .Include(p => p.ItemTags)
+                    .ThenInclude(it => it.Tag)
+                    .AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(SearchText))
+                {
+                    var search = SearchText.ToLower();
+                    query = query.Where(p =>
+                        (p.TextContent != null && p.TextContent.ToLower().Contains(search)) ||
+                        (p.FileName != null && p.FileName.ToLower().Contains(search)) ||
+                        p.ItemTags.Any(it => it.Tag.Name.ToLower().Contains(search)));
+                }
+
+                // Filter by item type
+                if (SelectedItemType.HasValue)
+                {
+                    query = query.Where(p => p.Type == SelectedItemType.Value);
+                }
+
+                // Filter by tag
+                if (!string.IsNullOrWhiteSpace(SelectedTag))
+                {
+                    query = query.Where(p => p.ItemTags.Any(it => it.Tag.Name == SelectedTag));
+                }
+
+                // Filter by date
+                if (SelectedDate.HasValue)
+                {
+                    var selectedDay = SelectedDate.Value.Date;
+                    var nextDay = selectedDay.AddDays(1);
+                    query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
+                }
+
+                return query
+                    .OrderByDescending(p => p.CreatedDate)
+                    .ToList();
+            });
+
+            // Update UI on UI thread
             Items.Clear();
             GroupedItems.Clear();
-
-            var query = _dbContext.PinnedItems
-                .Include(p => p.ItemTags)
-                .ThenInclude(it => it.Tag)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(SearchText))
-            {
-                var search = SearchText.ToLower();
-                query = query.Where(p =>
-                    (p.TextContent != null && p.TextContent.ToLower().Contains(search)) ||
-                    (p.FileName != null && p.FileName.ToLower().Contains(search)) ||
-                    p.ItemTags.Any(it => it.Tag.Name.ToLower().Contains(search)));
-            }
-
-            // Filter by item type
-            if (SelectedItemType.HasValue)
-            {
-                query = query.Where(p => p.Type == SelectedItemType.Value);
-            }
-
-            // Filter by tag
-            if (!string.IsNullOrWhiteSpace(SelectedTag))
-            {
-                query = query.Where(p => p.ItemTags.Any(it => it.Tag.Name == SelectedTag));
-            }
-
-            // Filter by date
-            if (SelectedDate.HasValue)
-            {
-                var selectedDay = SelectedDate.Value.Date;
-                var nextDay = selectedDay.AddDays(1);
-                query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
-            }
-
-            var items = query
-                .OrderByDescending(p => p.CreatedDate)
-                .ToList();
 
             if (GroupByDate)
             {
@@ -910,7 +915,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            LoadItems();
+                            _ = LoadItemsAsync();
                         }
                         break;
                     case ItemType.Image:
@@ -945,7 +950,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            LoadItems();
+                            _ = LoadItemsAsync();
                         }
                         break;
                     case ItemType.File:
@@ -970,7 +975,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            LoadItems();
+                            _ = LoadItemsAsync();
                         }
                         break;
                 }

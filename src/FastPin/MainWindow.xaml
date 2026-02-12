@@ -458,7 +458,14 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <Grid Margin="15">
                 <ItemsControl ItemsSource="{Binding GroupedItems}" 
-                              Visibility="{Binding GroupByDate, Converter={StaticResource BooleanToVisibilityConverter}}">
+                              Visibility="{Binding GroupByDate, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,0,0,20">
@@ -472,7 +479,14 @@
                                 </Border>
                                 
                                 <!-- Items in Group -->
-                                <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl ItemsSource="{Binding Items}"
+                                              VirtualizingPanel.IsVirtualizing="True"
+                                              VirtualizingPanel.VirtualizationMode="Recycling">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type vm:PinnedItemViewModel}">
                                             <Border Background="{StaticResource SurfaceBrush}" 
@@ -801,7 +815,14 @@
 
                 <!-- Ungrouped View (original) -->
             <ItemsControl ItemsSource="{Binding Items}" 
-                          Visibility="{Binding GroupByDate, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+                          Visibility="{Binding GroupByDate, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type vm:PinnedItemViewModel}">
                         <Border Background="{StaticResource SurfaceBrush}" 
