@@ -58,7 +58,7 @@
                     <!-- File Preview -->
                     <Grid Visibility="{Binding ClipboardPreviewType, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=File}">
                         <StackPanel>
-                            <TextBlock Text="📄 File" 
+                            <TextBlock Text="File" 
                                        FontSize="14" 
                                        FontWeight="SemiBold"
                                        Foreground="{StaticResource PrimaryBrush}"

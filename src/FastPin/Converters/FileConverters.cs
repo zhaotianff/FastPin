@@ -18,9 +18,10 @@ namespace FastPin.Converters
                 {
                     return Path.GetFileName(filePath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    return filePath;
+                    System.Diagnostics.Debug.WriteLine($"Error getting file name from path: {ex.Message}");
+                    return "Invalid path";
                 }
             }
             return string.Empty;
@@ -48,10 +49,12 @@ namespace FastPin.Converters
                         var fileInfo = new FileInfo(filePath);
                         return FormatFileSize(fileInfo.Length);
                     }
+                    return "File not found";
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Ignore errors
+                    System.Diagnostics.Debug.WriteLine($"Error getting file size: {ex.Message}");
+                    return "Unknown";
                 }
             }
             return "Unknown";
