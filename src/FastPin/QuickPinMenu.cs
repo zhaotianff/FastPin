@@ -59,8 +59,8 @@ namespace FastPin
             {
                 Width = 180,
                 Height = 180,
-                Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
-                Stroke = new SolidColorBrush(Color.FromRgb(225, 223, 221)),
+                Fill = (SolidColorBrush)Application.Current.Resources["SurfaceBrush"],
+                Stroke = (SolidColorBrush)Application.Current.Resources["BorderBrush"],
                 StrokeThickness = 2,
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
@@ -93,7 +93,7 @@ namespace FastPin
                 Y1 = 100,
                 X2 = 50,
                 Y2 = 140,
-                Stroke = new SolidColorBrush(Color.FromRgb(225, 223, 221)),
+                Stroke = (SolidColorBrush)Application.Current.Resources["BorderBrush"],
                 StrokeThickness = 1,
                 Opacity = 0.5
             };
@@ -105,7 +105,7 @@ namespace FastPin
                 Y1 = 100,
                 X2 = 150,
                 Y2 = 140,
-                Stroke = new SolidColorBrush(Color.FromRgb(225, 223, 221)),
+                Stroke = (SolidColorBrush)Application.Current.Resources["BorderBrush"],
                 StrokeThickness = 1,
                 Opacity = 0.5
             };
@@ -143,6 +143,7 @@ namespace FastPin
             {
                 Text = text,
                 FontSize = 11,
+                Foreground = (SolidColorBrush)Application.Current.Resources["TextPrimaryBrush"],
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.Wrap
@@ -165,7 +166,9 @@ namespace FastPin
             // Hover effect
             button.MouseEnter += (s, e) =>
             {
-                button.Background = new SolidColorBrush(Color.FromArgb(30, 0, 120, 212));
+                var primaryBrush = (SolidColorBrush)Application.Current.Resources["PrimaryBrush"];
+                var hoverColor = Color.FromArgb(30, primaryBrush.Color.R, primaryBrush.Color.G, primaryBrush.Color.B);
+                button.Background = new SolidColorBrush(hoverColor);
             };
 
             button.MouseLeave += (s, e) =>
