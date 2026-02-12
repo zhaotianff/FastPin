@@ -1126,7 +1126,11 @@ namespace FastPin.ViewModels
         {
             try
             {
-                var bitmap = await Task.Run(() =>
+                byte[]? imageData = null;
+                BitmapImage? bitmap = null;
+                
+                // Load and decode image on background thread
+                await Task.Run(() =>
                 {
                     var bmp = new BitmapImage();
                     bmp.BeginInit();
@@ -1142,18 +1146,20 @@ namespace FastPin.ViewModels
                     
                     bmp.EndInit();
                     bmp.Freeze();
-                    return bmp;
+                    bitmap = bmp;
+                    
+                    // Convert to byte array on background thread
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                    using (var stream = new MemoryStream())
+                    {
+                        encoder.Save(stream);
+                        imageData = stream.ToArray();
+                    }
                 });
                 
-                // Convert to byte array
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bitmap));
-                using (var stream = new MemoryStream())
-                {
-                    encoder.Save(stream);
-                    _clipboardPreviewImage = stream.ToArray();
-                }
-                
+                // Update fields on UI thread (async/await ensures we're back on UI thread)
+                _clipboardPreviewImage = imageData;
                 _clipboardPreviewImageSource = bitmap;
                 OnPropertyChanged(nameof(ClipboardPreviewImageSource));
             }
