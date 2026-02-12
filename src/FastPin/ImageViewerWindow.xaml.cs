@@ -10,9 +10,9 @@ namespace FastPin
     /// </summary>
     public partial class ImageViewerWindow : Window
     {
-        private Point _scrollMousePoint;
-        private double _hOffset = 0;
-        private double _vOffset = 0;
+        private Point _dragStartPoint;
+        private double _dragStartX = 0;
+        private double _dragStartY = 0;
         private bool _isDragging = false;
         private double _currentZoom = 1.0;
         private const double ZoomMin = 0.1;
@@ -55,10 +55,13 @@ namespace FastPin
             }
         }
 
-        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void ImageContainer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            // Get mouse position relative to the ScrollViewer viewport
-            var mousePosition = e.GetPosition(ImageScrollViewer);
+            // Get mouse position relative to the ImageContainer
+            var mousePosition = e.GetPosition(ImageContainer);
+            
+            // Get mouse position relative to the Image
+            var imagePosition = e.GetPosition(ImageControl);
             
             // Calculate the old zoom level
             double oldZoom = _currentZoom;
@@ -76,50 +79,47 @@ namespace FastPin
             ImageScaleTransform.ScaleX = _currentZoom;
             ImageScaleTransform.ScaleY = _currentZoom;
 
-            // Adjust scroll position to zoom toward cursor
-            if (ImageScrollViewer.ScrollableWidth > 0 || ImageScrollViewer.ScrollableHeight > 0)
-            {
-                double zoomRatio = _currentZoom / oldZoom;
-                double offsetX = (ImageScrollViewer.HorizontalOffset + mousePosition.X) * zoomRatio - mousePosition.X;
-                double offsetY = (ImageScrollViewer.VerticalOffset + mousePosition.Y) * zoomRatio - mousePosition.Y;
-                
-                ImageScrollViewer.ScrollToHorizontalOffset(offsetX);
-                ImageScrollViewer.ScrollToVerticalOffset(offsetY);
-            }
+            // Adjust the translate transform to zoom toward the mouse cursor
+            // The idea is to keep the point under the mouse cursor at the same position
+            double zoomRatio = _currentZoom / oldZoom;
+            
+            // Update translation to keep the image point under cursor stationary
+            ImageTranslateTransform.X = mousePosition.X - (imagePosition.X * zoomRatio);
+            ImageTranslateTransform.Y = mousePosition.Y - (imagePosition.Y * zoomRatio);
 
             e.Handled = true;
         }
 
-        private void ScrollViewer_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ImageContainer_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // Start dragging to scroll
-            _scrollMousePoint = e.GetPosition(ImageScrollViewer);
-            _hOffset = ImageScrollViewer.HorizontalOffset;
-            _vOffset = ImageScrollViewer.VerticalOffset;
+            // Start dragging to pan
+            _dragStartPoint = e.GetPosition(ImageContainer);
+            _dragStartX = ImageTranslateTransform.X;
+            _dragStartY = ImageTranslateTransform.Y;
             _isDragging = true;
-            ImageScrollViewer.CaptureMouse();
-            ImageScrollViewer.Cursor = Cursors.Hand;
+            ImageContainer.CaptureMouse();
+            ImageContainer.Cursor = Cursors.Hand;
         }
 
-        private void ScrollViewer_PreviewMouseMove(object sender, MouseEventArgs e)
+        private void ImageContainer_PreviewMouseMove(object sender, MouseEventArgs e)
         {
             if (_isDragging)
             {
-                // Calculate scroll offset based on mouse movement
-                var currentPoint = e.GetPosition(ImageScrollViewer);
-                var offset = currentPoint - _scrollMousePoint;
+                // Calculate translation offset based on mouse movement
+                var currentPoint = e.GetPosition(ImageContainer);
+                var offset = currentPoint - _dragStartPoint;
 
-                ImageScrollViewer.ScrollToHorizontalOffset(_hOffset - offset.X);
-                ImageScrollViewer.ScrollToVerticalOffset(_vOffset - offset.Y);
+                ImageTranslateTransform.X = _dragStartX + offset.X;
+                ImageTranslateTransform.Y = _dragStartY + offset.Y;
             }
         }
 
-        private void ScrollViewer_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void ImageContainer_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             // Stop dragging
             _isDragging = false;
-            ImageScrollViewer.ReleaseMouseCapture();
-            ImageScrollViewer.Cursor = Cursors.Arrow;
+            ImageContainer.ReleaseMouseCapture();
+            ImageContainer.Cursor = Cursors.Arrow;
         }
     }
 }
