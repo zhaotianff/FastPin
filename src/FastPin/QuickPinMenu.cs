@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 namespace FastPin
 {
@@ -19,8 +20,8 @@ namespace FastPin
             
             // Position window at mouse cursor
             var mousePosition = GetMousePosition();
-            this.Left = mousePosition.X;
-            this.Top = mousePosition.Y;
+            this.Left = mousePosition.X - 100; // Center the menu at cursor
+            this.Top = mousePosition.Y - 100;
             
             // Window settings
             this.WindowStyle = WindowStyle.None;
@@ -29,63 +30,133 @@ namespace FastPin
             this.Topmost = true;
             this.ShowInTaskbar = false;
             this.ResizeMode = ResizeMode.NoResize;
-            this.SizeToContent = SizeToContent.WidthAndHeight;
+            this.Width = 200;
+            this.Height = 200;
             
             // Close when losing focus
             this.Deactivated += (s, e) => this.Close();
+            
+            // Close when Esc key is pressed
+            this.KeyDown += (s, e) =>
+            {
+                if (e.Key == System.Windows.Input.Key.Escape)
+                {
+                    this.Close();
+                }
+            };
         }
 
         private void InitializeComponent()
         {
-            var border = new Border
+            var canvas = new Canvas
             {
-                Background = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(225, 223, 221)),
-                BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(6),
+                Width = 200,
+                Height = 200
+            };
+
+            // Create ellipse background
+            var ellipse = new Ellipse
+            {
+                Width = 180,
+                Height = 180,
+                Fill = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
+                Stroke = new SolidColorBrush(Color.FromRgb(225, 223, 221)),
+                StrokeThickness = 2,
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
-                    BlurRadius = 10,
-                    ShadowDepth = 2,
-                    Opacity = 0.3
-                },
-                Padding = new Thickness(5)
+                    BlurRadius = 15,
+                    ShadowDepth = 3,
+                    Opacity = 0.4
+                }
             };
+            Canvas.SetLeft(ellipse, 10);
+            Canvas.SetTop(ellipse, 10);
+            canvas.Children.Add(ellipse);
 
-            var stackPanel = new StackPanel();
-            
-            // Pin Text button
-            var pinTextButton = CreateMenuButton("📝 Pin Text", "PinText");
-            stackPanel.Children.Add(pinTextButton);
-            
-            // Pin Image button
-            var pinImageButton = CreateMenuButton("🖼️ Pin Image", "PinImage");
-            stackPanel.Children.Add(pinImageButton);
-            
-            // Pin File button
-            var pinFileButton = CreateMenuButton("📁 Pin File", "PinFile");
-            stackPanel.Children.Add(pinFileButton);
-            
-            border.Child = stackPanel;
-            this.Content = border;
+            // Create three button sections
+            // Top section - Pin Text
+            var textButton = CreateEllipseButton("📝", "Pin Text", "PinText", 100, 30);
+            canvas.Children.Add(textButton);
+
+            // Bottom Left section - Pin Image
+            var imageButton = CreateEllipseButton("🖼️", "Pin Image", "PinImage", 50, 140);
+            canvas.Children.Add(imageButton);
+
+            // Bottom Right section - Pin File
+            var fileButton = CreateEllipseButton("📁", "Pin File", "PinFile", 150, 140);
+            canvas.Children.Add(fileButton);
+
+            // Add divider lines to create three sections
+            var line1 = new Line
+            {
+                X1 = 100,
+                Y1 = 100,
+                X2 = 50,
+                Y2 = 140,
+                Stroke = new SolidColorBrush(Color.FromRgb(225, 223, 221)),
+                StrokeThickness = 1,
+                Opacity = 0.5
+            };
+            canvas.Children.Add(line1);
+
+            var line2 = new Line
+            {
+                X1 = 100,
+                Y1 = 100,
+                X2 = 150,
+                Y2 = 140,
+                Stroke = new SolidColorBrush(Color.FromRgb(225, 223, 221)),
+                StrokeThickness = 1,
+                Opacity = 0.5
+            };
+            canvas.Children.Add(line2);
+
+            this.Content = canvas;
         }
 
-        private Button CreateMenuButton(string text, string action)
+        private Border CreateEllipseButton(string icon, string text, string action, double left, double top)
         {
-            var button = new Button
+            var button = new Border
             {
-                Content = text,
-                Padding = new Thickness(15, 8, 15, 8),
-                Margin = new Thickness(2),
+                Width = 70,
+                Height = 60,
                 Background = Brushes.Transparent,
-                BorderThickness = new Thickness(0),
-                HorizontalContentAlignment = System.Windows.HorizontalAlignment.Left,
-                Cursor = System.Windows.Input.Cursors.Hand,
-                FontSize = 14,
-                Width = 180
+                Cursor = System.Windows.Input.Cursors.Hand
             };
 
-            button.Click += (s, e) =>
+            var stackPanel = new StackPanel
+            {
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+
+            var iconText = new TextBlock
+            {
+                Text = icon,
+                FontSize = 24,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 5)
+            };
+            stackPanel.Children.Add(iconText);
+
+            var labelText = new TextBlock
+            {
+                Text = text,
+                FontSize = 11,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.Wrap
+            };
+            stackPanel.Children.Add(labelText);
+
+            button.Child = stackPanel;
+
+            // Position button
+            Canvas.SetLeft(button, left - 35);
+            Canvas.SetTop(button, top - 30);
+
+            // Click handler
+            button.MouseLeftButtonDown += (s, e) =>
             {
                 ActionSelected?.Invoke(this, action);
                 this.Close();
@@ -94,14 +165,21 @@ namespace FastPin
             // Hover effect
             button.MouseEnter += (s, e) =>
             {
-                button.Background = new SolidColorBrush(Color.FromRgb(0, 120, 212));
-                button.Foreground = Brushes.White;
+                button.Background = new SolidColorBrush(Color.FromArgb(30, 0, 120, 212));
+                var border = new Border
+                {
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
+                    BorderThickness = new Thickness(2),
+                    CornerRadius = new CornerRadius(8),
+                    Width = button.Width,
+                    Height = button.Height
+                };
+                button.Background = new SolidColorBrush(Color.FromArgb(30, 0, 120, 212));
             };
 
             button.MouseLeave += (s, e) =>
             {
                 button.Background = Brushes.Transparent;
-                button.Foreground = Brushes.Black;
             };
 
             return button;
