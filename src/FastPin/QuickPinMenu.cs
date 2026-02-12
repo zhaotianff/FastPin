@@ -13,6 +13,7 @@ namespace FastPin
     public partial class QuickPinMenu : Window
     {
         public event EventHandler<string>? ActionSelected;
+        private bool isManualClose = false;
 
         public QuickPinMenu()
         {
@@ -32,15 +33,23 @@ namespace FastPin
             this.ResizeMode = ResizeMode.NoResize;
             this.Width = 200;
             this.Height = 200;
-            
+            this.isManualClose = false;
+
             // Close when losing focus
-            this.Deactivated += (s, e) => this.Close();
+            this.Deactivated += (s, e) =>
+            {
+                if (this.isManualClose == false)
+                {
+                    this.Close();
+                }
+            };
             
             // Close when Esc key is pressed
             this.KeyDown += (s, e) =>
             {
                 if (e.Key == System.Windows.Input.Key.Escape)
                 {
+                    this.isManualClose = true;
                     this.Close();
                 }
             };
@@ -159,6 +168,7 @@ namespace FastPin
             button.MouseLeftButtonDown += (s, e) =>
             {
                 ActionSelected?.Invoke(this, action);
+                this.isManualClose = true;
                 this.Close();
             };
 
