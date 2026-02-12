@@ -8,7 +8,7 @@
         xmlns:models="clr-namespace:FastPin.Models"
         xmlns:conv="clr-namespace:FastPin.Converters"
         mc:Ignorable="d"
-        Title="{conv:Localize AppTitle}" Height="600" Width="900"
+        Title="{conv:Localize AppTitle}" Height="900" Width="600"
         Background="{StaticResource BackgroundBrush}"
         WindowStartupLocation="CenterScreen"
         AllowsTransparency="False"
