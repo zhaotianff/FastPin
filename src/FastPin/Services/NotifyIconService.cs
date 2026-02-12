@@ -37,17 +37,45 @@ namespace FastPin.Services
             _notifyIcon.TrayMouseMove += NotifyIcon_TrayMouseMove;
             _notifyIcon.TrayLeftMouseUp += NotifyIcon_TrayLeftMouseUp;
             
-            // Create context menu
+            // Create context menu with modern styling
             var contextMenu = new System.Windows.Controls.ContextMenu();
+            
+            // Apply modern context menu style from App.xaml resources
+            if (Application.Current.Resources.Contains("ModernContextMenuStyle"))
+            {
+                contextMenu.Style = Application.Current.Resources["ModernContextMenuStyle"] as System.Windows.Style;
+            }
             
             var openMenuItem = new System.Windows.Controls.MenuItem { Header = "Open FastPin" };
             openMenuItem.Click += (s, e) => OpenMainWindow();
+            
+            // Apply modern menu item style
+            if (Application.Current.Resources.Contains("ModernMenuItemStyle"))
+            {
+                openMenuItem.Style = Application.Current.Resources["ModernMenuItemStyle"] as System.Windows.Style;
+            }
+            
             contextMenu.Items.Add(openMenuItem);
             
-            contextMenu.Items.Add(new System.Windows.Controls.Separator());
+            var separator = new System.Windows.Controls.Separator();
+            
+            // Apply modern separator style
+            if (Application.Current.Resources.Contains("ModernSeparatorStyle"))
+            {
+                separator.Style = Application.Current.Resources["ModernSeparatorStyle"] as System.Windows.Style;
+            }
+            
+            contextMenu.Items.Add(separator);
             
             var exitMenuItem = new System.Windows.Controls.MenuItem { Header = "Exit" };
             exitMenuItem.Click += (s, e) => ExitApplication();
+            
+            // Apply modern menu item style
+            if (Application.Current.Resources.Contains("ModernMenuItemStyle"))
+            {
+                exitMenuItem.Style = Application.Current.Resources["ModernMenuItemStyle"] as System.Windows.Style;
+            }
+            
             contextMenu.Items.Add(exitMenuItem);
             
             _notifyIcon.ContextMenu = contextMenu;

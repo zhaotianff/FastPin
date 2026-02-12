@@ -78,7 +78,7 @@ namespace FastPin.ViewModels
             ShowAddTagPopupCommand = new RelayCommand<PinnedItemViewModel>(ShowAddTagPopup);
             SelectExistingTagCommand = new RelayCommand<string>(SelectExistingTag);
 
-            LoadItems();
+            LoadItemsFireAndForget();
             LoadAllTags();
         }
 
@@ -94,7 +94,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _groupByDate, value))
                 {
-                    LoadItems();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -112,7 +112,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _searchText, value))
                 {
-                    LoadItems();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -136,7 +136,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedItemType, value))
                 {
-                    LoadItems();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -148,7 +148,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedDate, value))
                 {
-                    LoadItems();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -160,7 +160,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedTag, value))
                 {
-                    LoadItems();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace FastPin.ViewModels
             FastPin.Resources.LocalizationService.SetCulture(cultureName);
             
             // Reload items to update date group labels
-            LoadItems();
+            LoadItemsFireAndForget();
         }
 
         private void OnClipboardChanged(object? sender, EventArgs e)
@@ -371,7 +371,7 @@ namespace FastPin.ViewModels
                 _dbContext.SaveChanges();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                LoadItems();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -416,7 +416,7 @@ namespace FastPin.ViewModels
                 _dbContext.SaveChanges();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                LoadItems();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -459,7 +459,7 @@ namespace FastPin.ViewModels
                 }
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                LoadItems();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -544,7 +544,7 @@ namespace FastPin.ViewModels
                     _dbContext.SaveChanges();
                     
                     // Reload items to refresh both grouped and ungrouped views
-                    LoadItems();
+                    LoadItemsFireAndForget();
                 }
             }
             catch (Exception ex)
@@ -730,81 +730,100 @@ namespace FastPin.ViewModels
             
             // Refresh tags after window closes
             LoadAllTags();
-            LoadItems(); // Reload items to reflect any tag changes
+            LoadItemsFireAndForget(); // Reload items to reflect any tag changes
         }
 
-        private void LoadItems()
+        /// <summary>
+        /// Asynchronously loads pinned items from the database with applied filters.
+        /// Database queries execute asynchronously using EF Core async methods to prevent UI blocking.
+        /// UI collections (Items and GroupedItems) are updated on the UI thread.
+        /// </summary>
+        private async Task LoadItemsAsync()
         {
-            Items.Clear();
-            GroupedItems.Clear();
-
-            var query = _dbContext.PinnedItems
-                .Include(p => p.ItemTags)
-                .ThenInclude(it => it.Tag)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(SearchText))
+            try
             {
-                var search = SearchText.ToLower();
-                query = query.Where(p =>
-                    (p.TextContent != null && p.TextContent.ToLower().Contains(search)) ||
-                    (p.FileName != null && p.FileName.ToLower().Contains(search)) ||
-                    p.ItemTags.Any(it => it.Tag.Name.ToLower().Contains(search)));
-            }
+                // Build query with filters
+                var query = _dbContext.PinnedItems
+                    .Include(p => p.ItemTags)
+                    .ThenInclude(it => it.Tag)
+                    .AsQueryable();
 
-            // Filter by item type
-            if (SelectedItemType.HasValue)
-            {
-                query = query.Where(p => p.Type == SelectedItemType.Value);
-            }
-
-            // Filter by tag
-            if (!string.IsNullOrWhiteSpace(SelectedTag))
-            {
-                query = query.Where(p => p.ItemTags.Any(it => it.Tag.Name == SelectedTag));
-            }
-
-            // Filter by date
-            if (SelectedDate.HasValue)
-            {
-                var selectedDay = SelectedDate.Value.Date;
-                var nextDay = selectedDay.AddDays(1);
-                query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
-            }
-
-            var items = query
-                .OrderByDescending(p => p.CreatedDate)
-                .ToList();
-
-            if (GroupByDate)
-            {
-                // Group items by date
-                var groups = items
-                    .GroupBy(p => GetDateGroup(p.CreatedDate))
-                    .OrderByDescending(g => g.First().CreatedDate);
-
-                foreach (var group in groups)
+                if (!string.IsNullOrWhiteSpace(SearchText))
                 {
-                    var itemGroup = new ItemGroup
-                    {
-                        DateGroup = group.Key
-                    };
+                    var search = SearchText.ToLower();
+                    query = query.Where(p =>
+                        (p.TextContent != null && p.TextContent.ToLower().Contains(search)) ||
+                        (p.FileName != null && p.FileName.ToLower().Contains(search)) ||
+                        p.ItemTags.Any(it => it.Tag.Name.ToLower().Contains(search)));
+                }
 
-                    foreach (var item in group)
+                // Filter by item type
+                if (SelectedItemType.HasValue)
+                {
+                    query = query.Where(p => p.Type == SelectedItemType.Value);
+                }
+
+                // Filter by tag
+                if (!string.IsNullOrWhiteSpace(SelectedTag))
+                {
+                    query = query.Where(p => p.ItemTags.Any(it => it.Tag.Name == SelectedTag));
+                }
+
+                // Filter by date
+                if (SelectedDate.HasValue)
+                {
+                    var selectedDay = SelectedDate.Value.Date;
+                    var nextDay = selectedDay.AddDays(1);
+                    query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
+                }
+
+                // Execute query asynchronously - EF Core async methods are thread-safe
+                var items = await query
+                    .OrderByDescending(p => p.CreatedDate)
+                    .ToListAsync();
+
+                // Update UI on UI thread
+                Items.Clear();
+                GroupedItems.Clear();
+
+                if (GroupByDate)
+                {
+                    // Group items by date
+                    var groups = items
+                        .GroupBy(p => GetDateGroup(p.CreatedDate))
+                        .OrderByDescending(g => g.First().CreatedDate);
+
+                    foreach (var group in groups)
                     {
-                        itemGroup.Items.Add(new PinnedItemViewModel(item));
+                        var itemGroup = new ItemGroup
+                        {
+                            DateGroup = group.Key
+                        };
+
+                        foreach (var item in group)
+                        {
+                            itemGroup.Items.Add(new PinnedItemViewModel(item));
+                        }
+
+                        GroupedItems.Add(itemGroup);
                     }
-
-                    GroupedItems.Add(itemGroup);
+                }
+                else
+                {
+                    // Load items without grouping
+                    foreach (var item in items)
+                    {
+                        Items.Add(new PinnedItemViewModel(item));
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                // Load items without grouping
-                foreach (var item in items)
+                // Ensure MessageBox runs on UI thread
+                Application.Current?.Dispatcher.Invoke(() =>
                 {
-                    Items.Add(new PinnedItemViewModel(item));
-                }
+                    MessageBox.Show($"Error loading items: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
             }
         }
 
@@ -825,6 +844,16 @@ namespace FastPin.ViewModels
                 return date.ToString("MMMM yyyy");
             else
                 return date.ToString("yyyy");
+        }
+
+        /// <summary>
+        /// Fire-and-forget wrapper for LoadItemsAsync().
+        /// This async void method is used to call async operations from synchronous contexts (property setters, event handlers).
+        /// Exceptions are handled within LoadItemsAsync() and displayed to the user on the UI thread.
+        /// </summary>
+        private async void LoadItemsFireAndForget()
+        {
+            await LoadItemsAsync();
         }
 
         private void ToggleGrouping()
@@ -910,7 +939,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            LoadItems();
+                            LoadItemsFireAndForget();
                         }
                         break;
                     case ItemType.Image:
@@ -945,7 +974,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            LoadItems();
+                            LoadItemsFireAndForget();
                         }
                         break;
                     case ItemType.File:
@@ -970,7 +999,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            LoadItems();
+                            LoadItemsFireAndForget();
                         }
                         break;
                 }
