@@ -160,7 +160,6 @@
                             WindowChrome.IsHitTestVisibleInChrome="True">
                         <Button.Content>
                             <Path x:Name="MaximizeRestorePath"
-                                  Data="M 0,0 L 10,0 L 10,10 L 0,10 Z" 
                                   Stroke="White" 
                                   StrokeThickness="1"
                                   Stretch="None"

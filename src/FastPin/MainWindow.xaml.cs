@@ -25,6 +25,9 @@ public partial class MainWindow : Window
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
         
+        // Set initial geometry for maximize/restore button
+        MaximizeRestorePath.Data = MaximizeGeometry;
+        
         // Subscribe to hotkey event
         _viewModel.HotkeyPressed += ViewModel_HotkeyPressed;
         
