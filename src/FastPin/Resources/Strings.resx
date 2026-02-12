@@ -84,6 +84,9 @@
   <data name="FilterByType" xml:space="preserve">
     <value>Filter by Type:</value>
   </data>
+  <data name="FilterByTag" xml:space="preserve">
+    <value>Filter by Tag:</value>
+  </data>
   <data name="ClearFilters" xml:space="preserve">
     <value>Clear Filters</value>
   </data>
