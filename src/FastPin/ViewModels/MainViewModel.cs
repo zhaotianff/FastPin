@@ -735,9 +735,9 @@ namespace FastPin.ViewModels
 
         private async Task LoadItemsAsync()
         {
-            // Run database query on background thread
-            var items = await Task.Run(() =>
+            try
             {
+                // Build query with filters
                 var query = _dbContext.PinnedItems
                     .Include(p => p.ItemTags)
                     .ThenInclude(it => it.Tag)
@@ -772,44 +772,50 @@ namespace FastPin.ViewModels
                     query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
                 }
 
-                return query
+                // Execute query asynchronously - EF Core async methods are thread-safe
+                var items = await query
                     .OrderByDescending(p => p.CreatedDate)
-                    .ToList();
-            });
+                    .ToListAsync();
 
-            // Update UI on UI thread
-            Items.Clear();
-            GroupedItems.Clear();
+                // Update UI on UI thread
+                Items.Clear();
+                GroupedItems.Clear();
 
-            if (GroupByDate)
-            {
-                // Group items by date
-                var groups = items
-                    .GroupBy(p => GetDateGroup(p.CreatedDate))
-                    .OrderByDescending(g => g.First().CreatedDate);
-
-                foreach (var group in groups)
+                if (GroupByDate)
                 {
-                    var itemGroup = new ItemGroup
-                    {
-                        DateGroup = group.Key
-                    };
+                    // Group items by date
+                    var groups = items
+                        .GroupBy(p => GetDateGroup(p.CreatedDate))
+                        .OrderByDescending(g => g.First().CreatedDate);
 
-                    foreach (var item in group)
+                    foreach (var group in groups)
                     {
-                        itemGroup.Items.Add(new PinnedItemViewModel(item));
+                        var itemGroup = new ItemGroup
+                        {
+                            DateGroup = group.Key
+                        };
+
+                        foreach (var item in group)
+                        {
+                            itemGroup.Items.Add(new PinnedItemViewModel(item));
+                        }
+
+                        GroupedItems.Add(itemGroup);
                     }
-
-                    GroupedItems.Add(itemGroup);
+                }
+                else
+                {
+                    // Load items without grouping
+                    foreach (var item in items)
+                    {
+                        Items.Add(new PinnedItemViewModel(item));
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                // Load items without grouping
-                foreach (var item in items)
-                {
-                    Items.Add(new PinnedItemViewModel(item));
-                }
+                // Log error or show user-friendly message
+                MessageBox.Show($"Error loading items: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
