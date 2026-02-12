@@ -78,7 +78,7 @@ namespace FastPin.ViewModels
             ShowAddTagPopupCommand = new RelayCommand<PinnedItemViewModel>(ShowAddTagPopup);
             SelectExistingTagCommand = new RelayCommand<string>(SelectExistingTag);
 
-            _ = LoadItemsAsync();
+            LoadItemsFireAndForget();
             LoadAllTags();
         }
 
@@ -94,7 +94,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _groupByDate, value))
                 {
-                    _ = LoadItemsAsync();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -112,7 +112,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _searchText, value))
                 {
-                    _ = LoadItemsAsync();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -136,7 +136,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedItemType, value))
                 {
-                    _ = LoadItemsAsync();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -148,7 +148,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedDate, value))
                 {
-                    _ = LoadItemsAsync();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -160,7 +160,7 @@ namespace FastPin.ViewModels
             {
                 if (SetProperty(ref _selectedTag, value))
                 {
-                    _ = LoadItemsAsync();
+                    LoadItemsFireAndForget();
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace FastPin.ViewModels
             FastPin.Resources.LocalizationService.SetCulture(cultureName);
             
             // Reload items to update date group labels
-            _ = LoadItemsAsync();
+            LoadItemsFireAndForget();
         }
 
         private void OnClipboardChanged(object? sender, EventArgs e)
@@ -371,7 +371,7 @@ namespace FastPin.ViewModels
                 _dbContext.SaveChanges();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                _ = LoadItemsAsync();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -416,7 +416,7 @@ namespace FastPin.ViewModels
                 _dbContext.SaveChanges();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                _ = LoadItemsAsync();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -459,7 +459,7 @@ namespace FastPin.ViewModels
                 }
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
-                _ = LoadItemsAsync();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -544,7 +544,7 @@ namespace FastPin.ViewModels
                     _dbContext.SaveChanges();
                     
                     // Reload items to refresh both grouped and ungrouped views
-                    _ = LoadItemsAsync();
+                    LoadItemsFireAndForget();
                 }
             }
             catch (Exception ex)
@@ -730,7 +730,7 @@ namespace FastPin.ViewModels
             
             // Refresh tags after window closes
             LoadAllTags();
-            _ = LoadItemsAsync(); // Reload items to reflect any tag changes
+            LoadItemsFireAndForget(); // Reload items to reflect any tag changes
         }
 
         private async Task LoadItemsAsync()
@@ -814,8 +814,11 @@ namespace FastPin.ViewModels
             }
             catch (Exception ex)
             {
-                // Log error or show user-friendly message
-                MessageBox.Show($"Error loading items: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                // Ensure MessageBox runs on UI thread
+                Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show($"Error loading items: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
             }
         }
 
@@ -836,6 +839,12 @@ namespace FastPin.ViewModels
                 return date.ToString("MMMM yyyy");
             else
                 return date.ToString("yyyy");
+        }
+
+        // Helper method to safely invoke async methods from synchronous context
+        private async void LoadItemsFireAndForget()
+        {
+            await LoadItemsAsync();
         }
 
         private void ToggleGrouping()
@@ -921,7 +930,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            _ = LoadItemsAsync();
+                            LoadItemsFireAndForget();
                         }
                         break;
                     case ItemType.Image:
@@ -956,7 +965,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            _ = LoadItemsAsync();
+                            LoadItemsFireAndForget();
                         }
                         break;
                     case ItemType.File:
@@ -981,7 +990,7 @@ namespace FastPin.ViewModels
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
                             
-                            _ = LoadItemsAsync();
+                            LoadItemsFireAndForget();
                         }
                         break;
                 }
