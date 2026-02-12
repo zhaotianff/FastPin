@@ -111,17 +111,21 @@
                     </Button>
                     
                     <!-- Minimize Button -->
-                    <Button Content="─" 
-                            Click="MinimizeButton_Click"
+                    <Button Click="MinimizeButton_Click"
                             Width="40" Height="30"
                             Margin="0,0,5,0"
-                            Foreground="White"
                             Background="Transparent"
                             BorderThickness="0"
                             Cursor="Hand"
-                            FontSize="14"
-                            VerticalContentAlignment="Center"
                             WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button.Content>
+                            <Path Data="M 0,0 L 10,0" 
+                                  Stroke="White" 
+                                  StrokeThickness="1"
+                                  Stretch="None"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="Transparent"/>
@@ -147,17 +151,22 @@
                     
                     <!-- Maximize/Restore Button -->
                     <Button x:Name="MaximizeRestoreButton"
-                            Content="□" 
                             Click="MaximizeRestoreButton_Click"
                             Width="40" Height="30"
                             Margin="0,0,5,0"
-                            Foreground="White"
                             Background="Transparent"
                             BorderThickness="0"
                             Cursor="Hand"
-                            FontSize="14"
-                            VerticalContentAlignment="Center"
                             WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button.Content>
+                            <Path x:Name="MaximizeRestorePath"
+                                  Data="M 0,0 L 10,0 L 10,10 L 0,10 Z" 
+                                  Stroke="White" 
+                                  StrokeThickness="1"
+                                  Stretch="None"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="Transparent"/>
@@ -182,16 +191,20 @@
                     </Button>
                     
                     <!-- Close Button -->
-                    <Button Content="✕" 
-                            Click="CloseButton_Click"
+                    <Button Click="CloseButton_Click"
                             Width="40" Height="30"
-                            Foreground="White"
                             Background="Transparent"
                             BorderThickness="0"
                             Cursor="Hand"
-                            FontSize="16"
-                            VerticalContentAlignment="Center"
                             WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button.Content>
+                            <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" 
+                                  Stroke="White" 
+                                  StrokeThickness="1"
+                                  Stretch="None"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+                        </Button.Content>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background" Value="Transparent"/>
