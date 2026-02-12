@@ -14,6 +14,7 @@ public partial class MainWindow : Window
 {
     private MainViewModel _viewModel;
     private NotifyIconService _notifyIconService;
+    private bool _isShuttingDown = false;
     
     // Pre-parsed geometry for maximize and restore icons
     private static readonly Geometry MaximizeGeometry = Geometry.Parse("M 0,0 L 10,0 L 10,10 L 0,10 Z");
@@ -38,6 +39,9 @@ public partial class MainWindow : Window
         // Initialize notify icon
         _notifyIconService = new NotifyIconService();
         _notifyIconService.Initialize(_viewModel);
+        
+        // Subscribe to application shutdown event
+        Application.Current.SessionEnding += (s, e) => _isShuttingDown = true;
         
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
@@ -67,6 +71,11 @@ public partial class MainWindow : Window
         menu.Activate();
     }
 
+    public void AllowClose()
+    {
+        _isShuttingDown = true;
+    }
+
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         _viewModel.StartClipboardMonitoring();
@@ -75,9 +84,12 @@ public partial class MainWindow : Window
 
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        // Cancel the close event and hide the window instead
-        e.Cancel = true;
-        Hide();
+        // Only hide the window if the application is not shutting down
+        if (!_isShuttingDown)
+        {
+            e.Cancel = true;
+            Hide();
+        }
     }
 
     private void MainWindow_Closed(object? sender, System.EventArgs e)

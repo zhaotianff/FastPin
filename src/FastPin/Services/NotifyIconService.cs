@@ -125,6 +125,12 @@ namespace FastPin.Services
 
         private void ExitApplication()
         {
+            // Set a flag on the main window to allow it to close
+            if (Application.Current.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.AllowClose();
+            }
+            
             Application.Current.Shutdown();
         }
 

@@ -1099,8 +1099,14 @@ namespace FastPin.ViewModels
             {
                 if (File.Exists(item.FilePath))
                 {
-                    // Open Windows Explorer and select the file
-                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{item.FilePath}\"");
+                    // Open Windows Explorer and select the file using ProcessStartInfo for better security
+                    var startInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "explorer.exe",
+                        Arguments = $"/select,\"{item.FilePath}\"",
+                        UseShellExecute = false
+                    };
+                    System.Diagnostics.Process.Start(startInfo);
                 }
                 else
                 {
