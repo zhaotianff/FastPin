@@ -568,7 +568,13 @@
                                                         </StackPanel>
 
                                                         <!-- File Content -->
-                                                        <StackPanel Visibility="{Binding Type, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=File}">
+                                                        <StackPanel Visibility="{Binding Type, Converter={StaticResource ItemTypeToVisibilityConverter}, ConverterParameter=File}"
+                                                                    Cursor="Hand">
+                                                            <StackPanel.InputBindings>
+                                                                <MouseBinding MouseAction="LeftDoubleClick"
+                                                                              Command="{Binding DataContext.OpenFileLocationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                              CommandParameter="{Binding}"/>
+                                                            </StackPanel.InputBindings>
                                                             <TextBlock Text="{Binding FileName}" 
                                                                        FontSize="14" FontWeight="Medium"
                                                                        Foreground="{StaticResource TextPrimaryBrush}"/>

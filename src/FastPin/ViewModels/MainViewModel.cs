@@ -73,6 +73,7 @@ namespace FastPin.ViewModels
             DiscardClipboardCommand = new RelayCommand(DiscardClipboard);
             CopyItemCommand = new RelayCommand<PinnedItemViewModel>(CopyItem);
             ViewImageCommand = new RelayCommand<PinnedItemViewModel>(ViewImage, item => item != null && item.Type == ItemType.Image);
+            OpenFileLocationCommand = new RelayCommand<PinnedItemViewModel>(OpenFileLocation, item => item != null && item.Type == ItemType.File && !string.IsNullOrEmpty(item.FilePath));
             AddPreviewTagCommand = new RelayCommand(AddPreviewTag, () => !string.IsNullOrWhiteSpace(PreviewNewTagName));
             RemovePreviewTagCommand = new RelayCommand<string>(RemovePreviewTag);
             ShowAddTagPopupCommand = new RelayCommand<PinnedItemViewModel>(ShowAddTagPopup);
@@ -180,6 +181,7 @@ namespace FastPin.ViewModels
         public ICommand DiscardClipboardCommand { get; }
         public ICommand CopyItemCommand { get; }
         public ICommand ViewImageCommand { get; }
+        public ICommand OpenFileLocationCommand { get; }
         public ICommand AddPreviewTagCommand { get; }
         public ICommand RemovePreviewTagCommand { get; }
         public ICommand ShowAddTagPopupCommand { get; }
@@ -1085,6 +1087,29 @@ namespace FastPin.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Error opening image viewer: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OpenFileLocation(PinnedItemViewModel? item)
+        {
+            if (item == null || item.Type != ItemType.File || string.IsNullOrEmpty(item.FilePath))
+                return;
+
+            try
+            {
+                if (File.Exists(item.FilePath))
+                {
+                    // Open Windows Explorer and select the file
+                    System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{item.FilePath}\"");
+                }
+                else
+                {
+                    MessageBox.Show($"File not found: {item.FilePath}", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening file location: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

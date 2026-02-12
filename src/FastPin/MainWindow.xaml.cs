@@ -40,6 +40,7 @@ public partial class MainWindow : Window
         _notifyIconService.Initialize(_viewModel);
         
         Loaded += MainWindow_Loaded;
+        Closing += MainWindow_Closing;
         Closed += MainWindow_Closed;
     }
 
@@ -70,6 +71,13 @@ public partial class MainWindow : Window
     {
         _viewModel.StartClipboardMonitoring();
         _viewModel.StartHotkeyMonitoring();
+    }
+
+    private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        // Cancel the close event and hide the window instead
+        e.Cancel = true;
+        Hide();
     }
 
     private void MainWindow_Closed(object? sender, System.EventArgs e)
@@ -166,7 +174,7 @@ public partial class MainWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        Close();
+        Hide();
     }
 
     private void CancelAddTag_Click(object sender, RoutedEventArgs e)
