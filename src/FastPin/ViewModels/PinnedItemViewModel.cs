@@ -22,6 +22,12 @@ namespace FastPin.ViewModels
         {
             _model = model;
             LoadTags();
+            
+            // Pre-load image asynchronously if available
+            if (_model.ImageData != null && _model.ImageData.Length > 0)
+            {
+                _ = LoadImageAsync();
+            }
         }
 
         public int Id => _model.Id;
