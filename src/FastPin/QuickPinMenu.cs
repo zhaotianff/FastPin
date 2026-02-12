@@ -55,12 +55,15 @@ namespace FastPin
             };
 
             // Create ellipse background
+            var surfaceBrush = Application.Current.Resources["SurfaceBrush"] as SolidColorBrush ?? new SolidColorBrush(Color.FromRgb(255, 255, 255));
+            var borderBrush = Application.Current.Resources["BorderBrush"] as SolidColorBrush ?? new SolidColorBrush(Color.FromRgb(225, 223, 221));
+            
             var ellipse = new Ellipse
             {
                 Width = 180,
                 Height = 180,
-                Fill = (SolidColorBrush)Application.Current.Resources["SurfaceBrush"],
-                Stroke = (SolidColorBrush)Application.Current.Resources["BorderBrush"],
+                Fill = surfaceBrush,
+                Stroke = borderBrush,
                 StrokeThickness = 2,
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
@@ -93,7 +96,7 @@ namespace FastPin
                 Y1 = 100,
                 X2 = 50,
                 Y2 = 140,
-                Stroke = (SolidColorBrush)Application.Current.Resources["BorderBrush"],
+                Stroke = borderBrush,
                 StrokeThickness = 1,
                 Opacity = 0.5
             };
@@ -105,7 +108,7 @@ namespace FastPin
                 Y1 = 100,
                 X2 = 150,
                 Y2 = 140,
-                Stroke = (SolidColorBrush)Application.Current.Resources["BorderBrush"],
+                Stroke = borderBrush,
                 StrokeThickness = 1,
                 Opacity = 0.5
             };
@@ -116,6 +119,8 @@ namespace FastPin
 
         private Border CreateEllipseButton(string icon, string text, string action, double left, double top)
         {
+            var textPrimaryBrush = Application.Current.Resources["TextPrimaryBrush"] as SolidColorBrush ?? new SolidColorBrush(Color.FromRgb(31, 31, 31));
+            
             var button = new Border
             {
                 Width = 70,
@@ -143,7 +148,7 @@ namespace FastPin
             {
                 Text = text,
                 FontSize = 11,
-                Foreground = (SolidColorBrush)Application.Current.Resources["TextPrimaryBrush"],
+                Foreground = textPrimaryBrush,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.Wrap
@@ -166,7 +171,7 @@ namespace FastPin
             // Hover effect
             button.MouseEnter += (s, e) =>
             {
-                var primaryBrush = (SolidColorBrush)Application.Current.Resources["PrimaryBrush"];
+                var primaryBrush = Application.Current.Resources["PrimaryBrush"] as SolidColorBrush ?? new SolidColorBrush(Color.FromRgb(0, 120, 212));
                 var hoverColor = Color.FromArgb(30, primaryBrush.Color.R, primaryBrush.Color.G, primaryBrush.Color.B);
                 button.Background = new SolidColorBrush(hoverColor);
             };
