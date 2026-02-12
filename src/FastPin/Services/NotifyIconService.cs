@@ -27,7 +27,7 @@ namespace FastPin.Services
             try
             {
                 _notifyIcon.IconSource = new System.Windows.Media.Imaging.BitmapImage(
-                    new Uri("pack://application:,,,/Resources/icon.ico", UriKind.Absolute));
+                    new Uri("pack://application:,,,/pin.ico", UriKind.Absolute));
             }
             catch
             {
