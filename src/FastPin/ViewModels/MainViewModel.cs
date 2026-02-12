@@ -733,6 +733,11 @@ namespace FastPin.ViewModels
             LoadItemsFireAndForget(); // Reload items to reflect any tag changes
         }
 
+        /// <summary>
+        /// Asynchronously loads pinned items from the database with applied filters.
+        /// Database queries execute asynchronously using EF Core async methods to prevent UI blocking.
+        /// UI collections (Items and GroupedItems) are updated on the UI thread.
+        /// </summary>
         private async Task LoadItemsAsync()
         {
             try
@@ -841,7 +846,11 @@ namespace FastPin.ViewModels
                 return date.ToString("yyyy");
         }
 
-        // Helper method to safely invoke async methods from synchronous context
+        /// <summary>
+        /// Fire-and-forget wrapper for LoadItemsAsync().
+        /// This async void method is used to call async operations from synchronous contexts (property setters, event handlers).
+        /// Exceptions are handled within LoadItemsAsync() and displayed to the user on the UI thread.
+        /// </summary>
         private async void LoadItemsFireAndForget()
         {
             await LoadItemsAsync();
