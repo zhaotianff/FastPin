@@ -1102,11 +1102,12 @@ namespace FastPin.ViewModels
                     // Open Windows Explorer and select the file
                     // Note: The /select argument requires a comma-separated format, so we use Arguments
                     // instead of ArgumentList. The file path is already validated by File.Exists.
+                    // UseShellExecute must be true for explorer.exe to work correctly.
                     var startInfo = new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = "explorer.exe",
                         Arguments = $"/select,\"{item.FilePath}\"",
-                        UseShellExecute = false
+                        UseShellExecute = true
                     };
                     System.Diagnostics.Process.Start(startInfo);
                 }
