@@ -57,34 +57,11 @@ namespace FastPin
 
         private void ImageContainer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            // Get mouse position relative to the ImageContainer
-            var mousePosition = e.GetPosition(ImageContainer);
-            
-            // Calculate the old zoom level
-            double oldZoom = _currentZoom;
-            
-            // Zoom image with mouse wheel
-            if (e.Delta > 0)
-            {
-                _currentZoom = Math.Min(_currentZoom + ZoomStep, ZoomMax);
-            }
-            else
-            {
-                _currentZoom = Math.Max(_currentZoom - ZoomStep, ZoomMin);
-            }
-
-            // Apply new scale first
-            ImageScaleTransform.ScaleX = _currentZoom;
-            ImageScaleTransform.ScaleY = _currentZoom;
-
-            // Calculate zoom ratio
-            double zoomRatio = _currentZoom / oldZoom;
-            
-            // Adjust the translate transform to zoom toward the mouse cursor
-            // We need to adjust translation so the point under cursor stays in the same position
-            // Formula: newTranslate = mousePos - (mousePos - oldTranslate) * zoomRatio
-            ImageTranslateTransform.X = mousePosition.X - (mousePosition.X - ImageTranslateTransform.X) * zoomRatio;
-            ImageTranslateTransform.Y = mousePosition.Y - (mousePosition.Y - ImageTranslateTransform.Y) * zoomRatio;
+            double zoomFactor = e.Delta > 0 ? 1.1 : 1 / 1.1;
+            double newScaleX = ImageScaleTransform.ScaleX * zoomFactor;
+            double newScaleY = ImageScaleTransform.ScaleY * zoomFactor;
+            ImageScaleTransform.ScaleX = newScaleX;
+            ImageScaleTransform.ScaleY = newScaleY;
 
             e.Handled = true;
         }

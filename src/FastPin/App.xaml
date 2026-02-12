@@ -332,7 +332,7 @@
                             <Border x:Name="TrackBackground"
                                     Background="#F0F0F0"
                                     CornerRadius="6"
-                                    Opacity="0"
+                                    Opacity="1"
                                     Margin="2">
                                 <Track x:Name="PART_Track" IsDirectionReversed="True">
                                     <Track.Thumb>
@@ -368,7 +368,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="TrackBackground" Property="Opacity" Value="0.3"/>
+                                <Setter TargetName="TrackBackground" Property="Opacity" Value="0.8"/>
                             </Trigger>
                             <Trigger Property="Orientation" Value="Horizontal">
                                 <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
