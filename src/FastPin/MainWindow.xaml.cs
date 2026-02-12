@@ -14,6 +14,7 @@ public partial class MainWindow : Window
 {
     private MainViewModel _viewModel;
     private NotifyIconService _notifyIconService;
+    private bool _isShuttingDown = false;
     
     // Pre-parsed geometry for maximize and restore icons
     private static readonly Geometry MaximizeGeometry = Geometry.Parse("M 0,0 L 10,0 L 10,10 L 0,10 Z");
@@ -40,6 +41,7 @@ public partial class MainWindow : Window
         _notifyIconService.Initialize(_viewModel);
         
         Loaded += MainWindow_Loaded;
+        Closing += MainWindow_Closing;
         Closed += MainWindow_Closed;
     }
 
@@ -66,10 +68,29 @@ public partial class MainWindow : Window
         menu.Activate();
     }
 
+    /// <summary>
+    /// Allows the window to close without being intercepted.
+    /// Called by NotifyIconService when the user selects Exit from the tray menu.
+    /// </summary>
+    public void AllowClose()
+    {
+        _isShuttingDown = true;
+    }
+
     private void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         _viewModel.StartClipboardMonitoring();
         _viewModel.StartHotkeyMonitoring();
+    }
+
+    private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+    {
+        // Only hide the window if the application is not shutting down
+        if (!_isShuttingDown)
+        {
+            e.Cancel = true;
+            Hide();
+        }
     }
 
     private void MainWindow_Closed(object? sender, System.EventArgs e)
@@ -166,7 +187,7 @@ public partial class MainWindow : Window
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
-        Close();
+        Hide();
     }
 
     private void CancelAddTag_Click(object sender, RoutedEventArgs e)
