@@ -3,7 +3,7 @@ using System.Windows;
 using FastPin.ViewModels;
 using FastPin.Services;
 using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+using System.Windows.Media;
 
 namespace FastPin;
 
@@ -15,9 +15,9 @@ public partial class MainWindow : Window
     private MainViewModel _viewModel;
     private NotifyIconService _notifyIconService;
     
-    // Path data for maximize and restore icons
-    private const string MaximizePathData = "M 0,0 L 10,0 L 10,10 L 0,10 Z";
-    private const string RestorePathData = "M 0,2 L 8,2 L 8,10 L 0,10 Z M 2,0 L 10,0 L 10,8 L 8,8";
+    // Pre-parsed geometry for maximize and restore icons
+    private static readonly Geometry MaximizeGeometry = Geometry.Parse("M 0,0 L 10,0 L 10,10 L 0,10 Z");
+    private static readonly Geometry RestoreGeometry = Geometry.Parse("M 0,2 L 8,2 L 8,10 L 0,10 Z M 2,0 L 10,0 L 10,8 L 8,8");
 
     public MainWindow()
     {
@@ -152,12 +152,12 @@ public partial class MainWindow : Window
         if (WindowState == WindowState.Maximized)
         {
             WindowState = WindowState.Normal;
-            MaximizeRestorePath.Data = System.Windows.Media.Geometry.Parse(MaximizePathData);
+            MaximizeRestorePath.Data = MaximizeGeometry;
         }
         else
         {
             WindowState = WindowState.Maximized;
-            MaximizeRestorePath.Data = System.Windows.Media.Geometry.Parse(RestorePathData);
+            MaximizeRestorePath.Data = RestoreGeometry;
         }
     }
 
