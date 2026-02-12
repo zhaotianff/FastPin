@@ -47,27 +47,28 @@
             </Button.Style>
         </Button>
 
-        <!-- Image container with scroll viewer -->
-        <ScrollViewer x:Name="ImageScrollViewer"
-                      HorizontalScrollBarVisibility="Auto" 
-                      VerticalScrollBarVisibility="Auto"
-                      Background="Transparent"
-                      PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
-                      PreviewMouseLeftButtonDown="ScrollViewer_PreviewMouseLeftButtonDown"
-                      PreviewMouseMove="ScrollViewer_PreviewMouseMove"
-                      PreviewMouseLeftButtonUp="ScrollViewer_PreviewMouseLeftButtonUp">
+        <!-- Image container with transform -->
+        <Grid x:Name="ImageContainer"
+              Background="Transparent"
+              ClipToBounds="True"
+              PreviewMouseWheel="ImageContainer_PreviewMouseWheel"
+              PreviewMouseLeftButtonDown="ImageContainer_PreviewMouseLeftButtonDown"
+              PreviewMouseMove="ImageContainer_PreviewMouseMove"
+              PreviewMouseLeftButtonUp="ImageContainer_PreviewMouseLeftButtonUp">
             <Image x:Name="ImageControl"
                    Source="{Binding ImageSource}"
                    Stretch="Uniform"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Margin="50"
-                   RenderTransformOrigin="0.5,0.5">
+                   Margin="50">
                 <Image.RenderTransform>
-                    <ScaleTransform x:Name="ImageScaleTransform" ScaleX="1" ScaleY="1"/>
+                    <TransformGroup>
+                        <TranslateTransform x:Name="ImageTranslateTransform" X="0" Y="0"/>
+                        <ScaleTransform x:Name="ImageScaleTransform" ScaleX="1" ScaleY="1"/>
+                    </TransformGroup>
                 </Image.RenderTransform>
             </Image>
-        </ScrollViewer>
+        </Grid>
 
         <!-- Image info overlay -->
         <Border Background="#CC000000"
