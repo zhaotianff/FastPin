@@ -19,6 +19,7 @@ FastPin is a modern WPF application that allows you to quickly pin text, images,
 - **Flexible View**: Toggle between grouped and ungrouped views
 - **Date Filtering**: Use the date picker to view items from a specific date
 - **Type Filtering**: Filter items by type (All, Text, Image, File)
+- **Tag Filtering**: Filter items by specific tags to view only tagged content
 
 ### File Handling
 - **Link Mode**: Store only the file path without copying the file
@@ -56,6 +57,7 @@ The database includes:
    - Use the search box to filter items by text, file names, or tags
    - Use the date picker to view items from a specific date
    - Filter by type (All, Text, Image, File) to view specific content types
+   - Filter by tag to view items with a specific tag
    - Click "Clear Filters" to reset all filters
 4. **Organize**:
    - Add tags to items for categorization
