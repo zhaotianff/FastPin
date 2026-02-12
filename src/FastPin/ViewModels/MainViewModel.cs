@@ -251,22 +251,8 @@ namespace FastPin.ViewModels
                             _clipboardPreviewImage = stream.ToArray();
                         }
                         
-                        // Create cached BitmapImage for preview
-                        try
-                        {
-                            var bitmap = new BitmapImage();
-                            bitmap.BeginInit();
-                            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                            bitmap.StreamSource = new MemoryStream(_clipboardPreviewImage);
-                            bitmap.EndInit();
-                            bitmap.Freeze();
-                            _clipboardPreviewImageSource = bitmap;
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Error creating image preview: {ex.Message}");
-                            _clipboardPreviewImageSource = null;
-                        }
+                        // Create cached BitmapImage for preview - load asynchronously
+                        _ = LoadClipboardImageAsync(_clipboardPreviewImage);
                         
                         _clipboardPreviewType = ItemType.Image;
                         _clipboardPreviewText = null;
@@ -289,23 +275,9 @@ namespace FastPin.ViewModels
                                 // Handle as image content rather than file
                                 try
                                 {
-                                    var bitmap = new BitmapImage();
-                                    bitmap.BeginInit();
-                                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                                    bitmap.UriSource = new Uri(filePath);
-                                    bitmap.EndInit();
-                                    bitmap.Freeze();
+                                    // Load image asynchronously to avoid blocking UI
+                                    _ = LoadClipboardImageFromFileAsync(filePath);
                                     
-                                    // Convert to byte array
-                                    var encoder = new PngBitmapEncoder();
-                                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
-                                    using (var stream = new MemoryStream())
-                                    {
-                                        encoder.Save(stream);
-                                        _clipboardPreviewImage = stream.ToArray();
-                                    }
-                                    
-                                    _clipboardPreviewImageSource = bitmap;
                                     _clipboardPreviewType = ItemType.Image;
                                     _clipboardPreviewText = null;
                                     _clipboardPreviewFilePath = null;
@@ -1113,6 +1085,82 @@ namespace FastPin.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Error opening image viewer: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task LoadClipboardImageAsync(byte[] imageData)
+        {
+            try
+            {
+                var imageDataCopy = (byte[])imageData.Clone();
+                
+                var bitmap = await Task.Run(() =>
+                {
+                    var bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.StreamSource = new MemoryStream(imageDataCopy);
+                    
+                    // For large images, decode at reduced size
+                    if (imageDataCopy.Length > 1024 * 1024)
+                    {
+                        bmp.DecodePixelWidth = 2000;
+                    }
+                    
+                    bmp.EndInit();
+                    bmp.Freeze();
+                    return bmp;
+                });
+                
+                _clipboardPreviewImageSource = bitmap;
+                OnPropertyChanged(nameof(ClipboardPreviewImageSource));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error creating image preview: {ex.Message}");
+                _clipboardPreviewImageSource = null;
+            }
+        }
+
+        private async Task LoadClipboardImageFromFileAsync(string filePath)
+        {
+            try
+            {
+                var bitmap = await Task.Run(() =>
+                {
+                    var bmp = new BitmapImage();
+                    bmp.BeginInit();
+                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                    bmp.UriSource = new Uri(filePath);
+                    
+                    // Check file size and decode at reduced size if large
+                    var fileInfo = new FileInfo(filePath);
+                    if (fileInfo.Length > 1024 * 1024)
+                    {
+                        bmp.DecodePixelWidth = 2000;
+                    }
+                    
+                    bmp.EndInit();
+                    bmp.Freeze();
+                    return bmp;
+                });
+                
+                // Convert to byte array
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                using (var stream = new MemoryStream())
+                {
+                    encoder.Save(stream);
+                    _clipboardPreviewImage = stream.ToArray();
+                }
+                
+                _clipboardPreviewImageSource = bitmap;
+                OnPropertyChanged(nameof(ClipboardPreviewImageSource));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading image from file: {ex.Message}");
+                _clipboardPreviewImageSource = null;
             }
         }
 
