@@ -57,8 +57,8 @@ namespace FastPin
 
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            // Get mouse position relative to the image before zooming
-            var mousePosition = e.GetPosition(ImageControl);
+            // Get mouse position relative to the ScrollViewer viewport
+            var mousePosition = e.GetPosition(ImageScrollViewer);
             
             // Calculate the old zoom level
             double oldZoom = _currentZoom;

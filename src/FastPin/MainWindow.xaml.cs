@@ -1,6 +1,8 @@
+using System;
 using System.Windows;
 using FastPin.ViewModels;
 using FastPin.Services;
+using System.Windows.Media.Animation;
 
 namespace FastPin;
 
@@ -97,14 +99,44 @@ public partial class MainWindow : Window
 
     private void DrawerMenuButton_Click(object sender, RoutedEventArgs e)
     {
-        // Toggle drawer visibility
+        // Toggle drawer visibility with animation
         if (DrawerPanel.Visibility == Visibility.Visible)
         {
-            DrawerPanel.Visibility = Visibility.Collapsed;
+            // Slide out animation
+            var slideOut = new DoubleAnimation
+            {
+                From = 0,
+                To = -DrawerPanel.ActualWidth,
+                Duration = TimeSpan.FromMilliseconds(250),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+            };
+            
+            slideOut.Completed += (s, args) =>
+            {
+                DrawerPanel.Visibility = Visibility.Collapsed;
+                DrawerPanel.RenderTransform = new System.Windows.Media.TranslateTransform(0, 0);
+            };
+            
+            var transform = new System.Windows.Media.TranslateTransform();
+            DrawerPanel.RenderTransform = transform;
+            transform.BeginAnimation(System.Windows.Media.TranslateTransform.XProperty, slideOut);
         }
         else
         {
             DrawerPanel.Visibility = Visibility.Visible;
+            
+            // Slide in animation
+            var slideIn = new DoubleAnimation
+            {
+                From = -DrawerPanel.ActualWidth,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(250),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+            };
+            
+            var transform = new System.Windows.Media.TranslateTransform();
+            DrawerPanel.RenderTransform = transform;
+            transform.BeginAnimation(System.Windows.Media.TranslateTransform.XProperty, slideIn);
         }
     }
 
