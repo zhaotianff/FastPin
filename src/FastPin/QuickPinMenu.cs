@@ -166,15 +166,6 @@ namespace FastPin
             button.MouseEnter += (s, e) =>
             {
                 button.Background = new SolidColorBrush(Color.FromArgb(30, 0, 120, 212));
-                var border = new Border
-                {
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0, 120, 212)),
-                    BorderThickness = new Thickness(2),
-                    CornerRadius = new CornerRadius(8),
-                    Width = button.Width,
-                    Height = button.Height
-                };
-                button.Background = new SolidColorBrush(Color.FromArgb(30, 0, 120, 212));
             };
 
             button.MouseLeave += (s, e) =>
