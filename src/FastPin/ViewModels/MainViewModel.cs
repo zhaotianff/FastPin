@@ -31,6 +31,7 @@ namespace FastPin.ViewModels
         private bool _groupByDate = true;
         private ItemType? _selectedItemType = null;
         private DateTime? _selectedDate = null;
+        private string? _selectedTag = null;
         private string _currentLanguage = "en-US";
         
         // Supported image file extensions for clipboard conversion
@@ -146,6 +147,18 @@ namespace FastPin.ViewModels
             set
             {
                 if (SetProperty(ref _selectedDate, value))
+                {
+                    LoadItems();
+                }
+            }
+        }
+
+        public string? SelectedTag
+        {
+            get => _selectedTag;
+            set
+            {
+                if (SetProperty(ref _selectedTag, value))
                 {
                     LoadItems();
                 }
@@ -745,6 +758,12 @@ namespace FastPin.ViewModels
                 query = query.Where(p => p.Type == SelectedItemType.Value);
             }
 
+            // Filter by tag
+            if (!string.IsNullOrWhiteSpace(SelectedTag))
+            {
+                query = query.Where(p => p.ItemTags.Any(it => it.Tag.Name == SelectedTag));
+            }
+
             // Filter by date
             if (SelectedDate.HasValue)
             {
@@ -832,6 +851,7 @@ namespace FastPin.ViewModels
         {
             SelectedItemType = null;
             SelectedDate = null;
+            SelectedTag = null;
             SearchText = string.Empty;
         }
 

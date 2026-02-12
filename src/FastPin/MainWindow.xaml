@@ -383,6 +383,19 @@
                                 </ComboBox>
                             </StackPanel>
 
+                            <!-- Tag Filter -->
+                            <StackPanel Margin="0,0,0,10">
+                                <TextBlock Text="{conv:Localize FilterByTag}" 
+                                           FontSize="12" 
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,0,0,5"/>
+                                <ComboBox FontSize="12" 
+                                          SelectedItem="{Binding SelectedTag}" 
+                                          ItemsSource="{Binding AllTags}"
+                                          Style="{StaticResource ModernComboBoxStyle}"
+                                          HorizontalAlignment="Stretch"/>
+                            </StackPanel>
+
                             <Button Content="{conv:Localize ClearFilters}" 
                                     Command="{Binding ClearFiltersCommand}"
                                     Style="{StaticResource ModernButtonStyle}" 

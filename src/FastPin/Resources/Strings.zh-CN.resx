@@ -84,6 +84,9 @@
   <data name="FilterByType" xml:space="preserve">
     <value>按类型筛选：</value>
   </data>
+  <data name="FilterByTag" xml:space="preserve">
+    <value>按标签筛选：</value>
+  </data>
   <data name="ClearFilters" xml:space="preserve">
     <value>清除筛选</value>
   </data>
