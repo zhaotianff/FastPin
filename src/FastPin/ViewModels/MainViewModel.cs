@@ -1099,7 +1099,9 @@ namespace FastPin.ViewModels
             {
                 if (File.Exists(item.FilePath))
                 {
-                    // Open Windows Explorer and select the file using ProcessStartInfo for better security
+                    // Open Windows Explorer and select the file
+                    // Note: The /select argument requires a comma-separated format, so we use Arguments
+                    // instead of ArgumentList. The file path is already validated by File.Exists.
                     var startInfo = new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = "explorer.exe",

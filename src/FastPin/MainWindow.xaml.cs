@@ -40,9 +40,6 @@ public partial class MainWindow : Window
         _notifyIconService = new NotifyIconService();
         _notifyIconService.Initialize(_viewModel);
         
-        // Subscribe to application shutdown event
-        Application.Current.SessionEnding += (s, e) => _isShuttingDown = true;
-        
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
         Closed += MainWindow_Closed;
@@ -71,6 +68,10 @@ public partial class MainWindow : Window
         menu.Activate();
     }
 
+    /// <summary>
+    /// Allows the window to close without being intercepted.
+    /// Called by NotifyIconService when the user selects Exit from the tray menu.
+    /// </summary>
     public void AllowClose()
     {
         _isShuttingDown = true;
