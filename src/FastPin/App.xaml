@@ -12,6 +12,8 @@
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <converters:HexToColorConverter x:Key="HexToColorConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:FilePathToNameConverter x:Key="FilePathToNameConverter"/>
+        <converters:FilePathToSizeConverter x:Key="FilePathToSizeConverter"/>
         
         <!-- Modern Fluent Design Colors -->
         <SolidColorBrush x:Key="PrimaryBrush" Color="#0078D4"/>

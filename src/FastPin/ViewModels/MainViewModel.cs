@@ -189,6 +189,7 @@ namespace FastPin.ViewModels
 
         public string? ClipboardPreviewText => _clipboardPreviewText;
         public ItemType? ClipboardPreviewType => _clipboardPreviewType;
+        public string? ClipboardPreviewFilePath => _clipboardPreviewFilePath;
 
         public BitmapImage? ClipboardPreviewImageSource => _clipboardPreviewImageSource;
 
@@ -311,6 +312,7 @@ namespace FastPin.ViewModels
                 // Notify that clipboard preview is available
                 OnPropertyChanged(nameof(ClipboardPreviewText));
                 OnPropertyChanged(nameof(ClipboardPreviewType));
+                OnPropertyChanged(nameof(ClipboardPreviewFilePath));
                 OnPropertyChanged(nameof(ClipboardPreviewImageSource));
             }
             catch (Exception ex)
@@ -997,6 +999,7 @@ namespace FastPin.ViewModels
             PreviewItemTags.Clear();
             OnPropertyChanged(nameof(ClipboardPreviewText));
             OnPropertyChanged(nameof(ClipboardPreviewType));
+            OnPropertyChanged(nameof(ClipboardPreviewFilePath));
             OnPropertyChanged(nameof(ClipboardPreviewImageSource));
         }
 
