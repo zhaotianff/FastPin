@@ -29,7 +29,7 @@ namespace FastPin.ViewModels
             // Initialize commands
             SaveTagCommand = new RelayCommand(SaveTag, CanSaveTag);
             NewTagCommand = new RelayCommand(NewTag);
-            DeleteTagCommand = new RelayCommand<TagViewModel>(DeleteTag, tag => tag != null);
+            DeleteTagCommand = new RelayCommand<TagViewModel>(DeleteTag);
             SetColorCommand = new RelayCommand<string>(SetColor);
 
             LoadTags();
@@ -200,7 +200,7 @@ namespace FastPin.ViewModels
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    var dbTag = _dbContext.Tags.FirstOrDefault(t => t.Id == tag.Id);
+                    var dbTag = _dbContext.Tags.Include(t => t.ItemTags).FirstOrDefault(t => t.Id == tag.Id);
                     if (dbTag != null)
                     {
                         _dbContext.Tags.Remove(dbTag);
