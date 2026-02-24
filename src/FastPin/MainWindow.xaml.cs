@@ -199,7 +199,6 @@ public partial class MainWindow : Window
     private void AddTagButton_Click(object sender, RoutedEventArgs e)
     {
         AddTagPopup.IsOpen = false;
-        _viewModel.NewTagName = string.Empty;
     }
 
     private void RemoveTagButton_Click(object sender, RoutedEventArgs e)
