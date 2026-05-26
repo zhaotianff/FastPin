@@ -10,6 +10,7 @@ namespace FastPin;
 /// </summary>
 public partial class App : Application
 {
+    public static bool isAutoRun = false;
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -17,6 +18,11 @@ public partial class App : Application
         // Load and apply saved settings
         var settings = AppSettings.Load();
         FastPin.Resources.LocalizationService.SetCulture(settings.Language);
+
+        if(e.Args != null && e.Args.Length > 0 && e.Args[0] == "-startup")
+        {
+            isAutoRun = true;
+        }
     }
 }
 

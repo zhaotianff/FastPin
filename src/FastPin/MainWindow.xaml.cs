@@ -43,6 +43,16 @@ public partial class MainWindow : Window
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
         Closed += MainWindow_Closed;
+
+        AutoStartup();
+    }
+
+    private void AutoStartup()
+    {
+        if (App.isAutoRun == true)
+        {
+            this.Visibility = Visibility.Hidden;
+        }
     }
 
     private void ViewModel_HotkeyPressed(object? sender, EventArgs e)
