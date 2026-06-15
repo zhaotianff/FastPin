@@ -43,8 +43,6 @@ public partial class MainWindow : Window
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
         Closed += MainWindow_Closed;
-
-        AutoStartup();
     }
 
     private void AutoStartup()
@@ -91,6 +89,8 @@ public partial class MainWindow : Window
     {
         _viewModel.StartClipboardMonitoring();
         _viewModel.StartHotkeyMonitoring();
+
+        AutoStartup();
     }
 
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
