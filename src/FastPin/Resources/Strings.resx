@@ -177,6 +177,9 @@
   <data name="DatabaseType" xml:space="preserve">
     <value>Database Type</value>
   </data>
+  <data name="WebApiAddress" xml:space="preserve">
+    <value>Web API Address</value>
+  </data>
   <data name="MySqlConnectionSettings" xml:space="preserve">
     <value>MySQL Connection Settings</value>
   </data>

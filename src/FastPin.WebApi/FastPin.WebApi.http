@@ -1,0 +1,6 @@
+@FastPin.WebApi_HostAddress = http://localhost:5081
+
+GET {{FastPin.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

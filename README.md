@@ -70,9 +70,21 @@ The database includes:
 ## Building
 
 ```bash
+dotnet restore FastPin.sln
+dotnet build FastPin.sln
+```
+
+Run desktop app:
+
+```bash
 cd src/FastPin
-dotnet restore
-dotnet build
+dotnet run
+```
+
+Run Web API (debug UI at `/debug`):
+
+```bash
+cd src/FastPin.WebApi
 dotnet run
 ```
 
