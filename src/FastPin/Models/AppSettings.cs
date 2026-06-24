@@ -19,6 +19,9 @@ namespace FastPin.Models
         public string? MySqlDatabase { get; set; }
         public string? MySqlUsername { get; set; }
         public string? MySqlPassword { get; set; }
+        public string? ApiBaseUrl { get; set; } = "https://localhost:5001";
+        public string? ApiUsername { get; set; } = "admin";
+        public string? ApiPassword { get; set; } = "change-me";
 
         private static string GetSettingsFilePath()
         {

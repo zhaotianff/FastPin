@@ -9,10 +9,8 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using FastPin.Commands;
-using FastPin.Data;
 using FastPin.Models;
 using FastPin.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace FastPin.ViewModels
 {
@@ -21,7 +19,7 @@ namespace FastPin.ViewModels
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
-        private readonly FastPinDbContext _dbContext;
+        private readonly FastPinApiClient _apiClient;
         private readonly ClipboardMonitorService _clipboardMonitor;
         private readonly HotkeyService _hotkeyService;
         private string _searchText = string.Empty;
@@ -48,8 +46,7 @@ namespace FastPin.ViewModels
 
         public MainViewModel()
         {
-            _dbContext = new FastPinDbContext();
-            DatabaseInitializer.Initialize(_dbContext);
+            _apiClient = new FastPinApiClient();
 
             _clipboardMonitor = new ClipboardMonitorService();
             _clipboardMonitor.ClipboardChanged += OnClipboardChanged;
@@ -343,8 +340,7 @@ namespace FastPin.ViewModels
                     ModifiedDate = DateTime.Now
                 };
 
-                _dbContext.PinnedItems.Add(item);
-                _dbContext.SaveChanges();
+                _apiClient.CreatePinnedItemAsync(item).GetAwaiter().GetResult();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
                 LoadItemsFireAndForget();
@@ -388,8 +384,7 @@ namespace FastPin.ViewModels
                     ModifiedDate = DateTime.Now
                 };
 
-                _dbContext.PinnedItems.Add(item);
-                _dbContext.SaveChanges();
+                _apiClient.CreatePinnedItemAsync(item).GetAwaiter().GetResult();
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
                 LoadItemsFireAndForget();
@@ -430,8 +425,7 @@ namespace FastPin.ViewModels
                         ModifiedDate = DateTime.Now
                     };
 
-                    _dbContext.PinnedItems.Add(item);
-                    _dbContext.SaveChanges();
+                    _apiClient.CreatePinnedItemAsync(item).GetAwaiter().GetResult();
                 }
 
                 // Reload items to ensure both grouped and ungrouped views are synchronized
@@ -456,19 +450,13 @@ namespace FastPin.ViewModels
             {
                 await Task.Run(() =>
                 {
-                    // Create a new DbContext for thread-safety
-                    using var dbContext = new FastPinDbContext();
-                    
-                    var item = dbContext.PinnedItems.Find(itemId);
-                    if (item == null || item.Type != ItemType.File)
-                        return;
+                    byte[]? cachedData = null;
 
                     if (isCached)
                     {
-                        // Cache the file
-                        if (!string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
+                        if (!string.IsNullOrEmpty(itemViewModel.FilePath) && File.Exists(itemViewModel.FilePath))
                         {
-                            item.CachedFileData = File.ReadAllBytes(item.FilePath);
+                            cachedData = File.ReadAllBytes(itemViewModel.FilePath);
                         }
                         else
                         {
@@ -480,15 +468,8 @@ namespace FastPin.ViewModels
                             return;
                         }
                     }
-                    else
-                    {
-                        // Clear cached data
-                        item.CachedFileData = null;
-                    }
 
-                    item.IsCached = isCached;
-                    item.ModifiedDate = DateTime.Now;
-                    dbContext.SaveChanges();
+                    _apiClient.UpdateFileCacheAsync(itemId, isCached, cachedData).GetAwaiter().GetResult();
                 });
             }
             catch (Exception ex)
@@ -513,15 +494,8 @@ namespace FastPin.ViewModels
                 if (result != MessageBoxResult.Yes)
                     return;
 
-                var item = _dbContext.PinnedItems.Find(itemToDelete.Id);
-                if (item != null)
-                {
-                    _dbContext.PinnedItems.Remove(item);
-                    _dbContext.SaveChanges();
-                    
-                    // Reload items to refresh both grouped and ungrouped views
-                    LoadItemsFireAndForget();
-                }
+                _apiClient.DeletePinnedItemAsync(itemToDelete.Id).GetAwaiter().GetResult();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -541,43 +515,12 @@ namespace FastPin.ViewModels
             {
                 var tagName = NewTagName.Trim();
 
-                // Find or create tag
-                var tag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagName);
-                if (tag == null)
-                {
-                    tag = new Tag { Name = tagName };
-                    _dbContext.Tags.Add(tag);
-                    _dbContext.SaveChanges();
-                }
-
-                // Check if already tagged
-                var existingItemTag = _dbContext.ItemTags
-                    .FirstOrDefault(it => it.PinnedItemId == SelectedItem.Id && it.TagId == tag.Id);
-
-                if (existingItemTag == null)
-                {
-                    var itemTag = new ItemTag
-                    {
-                        PinnedItemId = SelectedItem.Id,
-                        TagId = tag.Id
-                    };
-                    _dbContext.ItemTags.Add(itemTag);
-                    _dbContext.SaveChanges();
-
-                    // Reload the item to get updated tags
-                    var item = _dbContext.PinnedItems
-                        .Include(p => p.ItemTags)
-                        .ThenInclude(it => it.Tag)
-                        .FirstOrDefault(p => p.Id == SelectedItem.Id);
-
-                    if (item != null)
-                    {
-                        SelectedItem.RefreshTags();
-                    }
-                }
+                var tag = _apiClient.EnsureTagAsync(tagName).GetAwaiter().GetResult();
+                _apiClient.AddTagToItemAsync(SelectedItem.Id, tag.Id).GetAwaiter().GetResult();
 
                 NewTagName = string.Empty;
                 LoadAllTags();
+                LoadItemsFireAndForget();
             }
             catch (Exception ex)
             {
@@ -592,28 +535,11 @@ namespace FastPin.ViewModels
 
             try
             {
-                var tag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagName);
+                var tag = _apiClient.GetTagByNameAsync(tagName).GetAwaiter().GetResult();
                 if (tag != null)
                 {
-                    var itemTag = _dbContext.ItemTags
-                        .FirstOrDefault(it => it.PinnedItemId == SelectedItem.Id && it.TagId == tag.Id);
-
-                    if (itemTag != null)
-                    {
-                        _dbContext.ItemTags.Remove(itemTag);
-                        _dbContext.SaveChanges();
-
-                        // Refresh the item tags
-                        var item = _dbContext.PinnedItems
-                            .Include(p => p.ItemTags)
-                            .ThenInclude(it => it.Tag)
-                            .FirstOrDefault(p => p.Id == SelectedItem.Id);
-
-                        if (item != null)
-                        {
-                            SelectedItem.RefreshTags();
-                        }
-                    }
+                    _apiClient.RemoveTagFromItemAsync(SelectedItem.Id, tag.Id).GetAwaiter().GetResult();
+                    LoadItemsFireAndForget();
                 }
             }
             catch (Exception ex)
@@ -656,14 +582,7 @@ namespace FastPin.ViewModels
             {
                 var tagName = PreviewNewTagName.Trim();
 
-                // Find or create tag in database
-                var tag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagName);
-                if (tag == null)
-                {
-                    tag = new Tag { Name = tagName };
-                    _dbContext.Tags.Add(tag);
-                    _dbContext.SaveChanges();
-                }
+                var tag = _apiClient.EnsureTagAsync(tagName).GetAwaiter().GetResult();
 
                 // Check if already in preview tags
                 if (!PreviewItemTags.Any(t => t.Name == tagName))
@@ -718,11 +637,7 @@ namespace FastPin.ViewModels
         {
             try
             {
-                // Build query with filters
-                var query = _dbContext.PinnedItems
-                    .Include(p => p.ItemTags)
-                    .ThenInclude(it => it.Tag)
-                    .AsQueryable();
+                var query = (await _apiClient.GetPinnedItemsAsync()).AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(SearchText))
                 {
@@ -753,10 +668,9 @@ namespace FastPin.ViewModels
                     query = query.Where(p => p.CreatedDate >= selectedDay && p.CreatedDate < nextDay);
                 }
 
-                // Execute query asynchronously - EF Core async methods are thread-safe
-                var items = await query
+                var items = query
                     .OrderByDescending(p => p.CreatedDate)
-                    .ToListAsync();
+                    .ToList();
 
                 // Update UI on UI thread
                 Items.Clear();
@@ -840,7 +754,10 @@ namespace FastPin.ViewModels
         private void LoadAllTags()
         {
             AllTags.Clear();
-            var tags = _dbContext.Tags.OrderBy(t => t.Name).Select(t => t.Name).ToList();
+            var tags = _apiClient.GetTagsAsync().GetAwaiter().GetResult()
+                .OrderBy(t => t.Name)
+                .Select(t => t.Name)
+                .ToList();
             foreach (var tag in tags)
             {
                 AllTags.Add(tag);
@@ -909,8 +826,7 @@ namespace FastPin.ViewModels
                                 ModifiedDate = DateTime.Now
                             };
 
-                            _dbContext.PinnedItems.Add(item);
-                            _dbContext.SaveChanges();
+                            item = _apiClient.CreatePinnedItemAsync(item).GetAwaiter().GetResult();
                             
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
@@ -944,8 +860,7 @@ namespace FastPin.ViewModels
                                 ModifiedDate = DateTime.Now
                             };
 
-                            _dbContext.PinnedItems.Add(item);
-                            _dbContext.SaveChanges();
+                            item = _apiClient.CreatePinnedItemAsync(item).GetAwaiter().GetResult();
                             
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
@@ -969,8 +884,7 @@ namespace FastPin.ViewModels
                                 ModifiedDate = DateTime.Now
                             };
 
-                            _dbContext.PinnedItems.Add(item);
-                            _dbContext.SaveChanges();
+                            item = _apiClient.CreatePinnedItemAsync(item).GetAwaiter().GetResult();
                             
                             // Associate selected tags
                             AssociatePreviewTags(item.Id);
@@ -1009,18 +923,9 @@ namespace FastPin.ViewModels
             {
                 foreach (var tagViewModel in PreviewItemTags)
                 {
-                    var tag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagViewModel.Name);
-                    if (tag != null)
-                    {
-                        var itemTag = new ItemTag
-                        {
-                            PinnedItemId = itemId,
-                            TagId = tag.Id
-                        };
-                        _dbContext.ItemTags.Add(itemTag);
-                    }
+                    var tag = _apiClient.EnsureTagAsync(tagViewModel.Name).GetAwaiter().GetResult();
+                    _apiClient.AddTagToItemAsync(itemId, tag.Id).GetAwaiter().GetResult();
                 }
-                _dbContext.SaveChanges();
                 PreviewItemTags.Clear();
             }
             catch (Exception ex)

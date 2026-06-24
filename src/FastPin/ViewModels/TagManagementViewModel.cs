@@ -4,18 +4,17 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using FastPin.Commands;
-using FastPin.Data;
 using FastPin.Models;
-using Microsoft.EntityFrameworkCore;
+using FastPin.Services;
 
 namespace FastPin.ViewModels
 {
     /// <summary>
     /// ViewModel for Tag Management window
     /// </summary>
-    public class TagManagementViewModel : ViewModelBase, IDisposable
+    public class TagManagementViewModel : ViewModelBase
     {
-        private readonly FastPinDbContext _dbContext;
+        private readonly FastPinApiClient _apiClient;
         private TagViewModel? _selectedTag;
         private string _editingTagName = string.Empty;
         private string? _editingTagClass;
@@ -24,9 +23,8 @@ namespace FastPin.ViewModels
 
         public TagManagementViewModel()
         {
-            _dbContext = new FastPinDbContext();
+            _apiClient = new FastPinApiClient();
 
-            // Initialize commands
             SaveTagCommand = new RelayCommand(SaveTag, CanSaveTag);
             NewTagCommand = new RelayCommand(NewTag);
             DeleteTagCommand = new RelayCommand<TagViewModel>(DeleteTag);
@@ -75,7 +73,7 @@ namespace FastPin.ViewModels
         private void LoadTags()
         {
             Tags.Clear();
-            var tags = _dbContext.Tags
+            var tags = _apiClient.GetTagsAsync().GetAwaiter().GetResult()
                 .OrderBy(t => t.Name)
                 .ToList();
 
@@ -116,53 +114,38 @@ namespace FastPin.ViewModels
 
                 if (_isEditingExisting && SelectedTag != null)
                 {
-                    // Update existing tag
-                    var tag = _dbContext.Tags.FirstOrDefault(t => t.Id == SelectedTag.Id);
-                    if (tag != null)
-                    {
-                        // Check if name is being changed and if it conflicts
-                        if (tag.Name != tagName)
-                        {
-                            var existingTag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagName && t.Id != tag.Id);
-                            if (existingTag != null)
-                            {
-                                MessageBox.Show("A tag with this name already exists.", "Duplicate Tag", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                return;
-                            }
-                        }
-
-                        tag.Name = tagName;
-                        tag.Class = string.IsNullOrWhiteSpace(EditingTagClass) ? null : EditingTagClass.Trim();
-                        tag.Color = string.IsNullOrWhiteSpace(EditingTagColor) ? null : EditingTagColor.Trim();
-                        _dbContext.SaveChanges();
-
-                        // Update ViewModel
-                        SelectedTag.Name = tag.Name;
-                        SelectedTag.Class = tag.Class;
-                        SelectedTag.Color = tag.Color;
-                    }
-                }
-                else
-                {
-                    // Create new tag
-                    var existingTag = _dbContext.Tags.FirstOrDefault(t => t.Name == tagName);
-                    if (existingTag != null)
+                    if (Tags.Any(t => t.Name == tagName && t.Id != SelectedTag.Id))
                     {
                         MessageBox.Show("A tag with this name already exists.", "Duplicate Tag", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
 
-                    var newTag = new Tag
+                    var updated = new Tag
                     {
+                        Id = SelectedTag.Id,
                         Name = tagName,
                         Class = string.IsNullOrWhiteSpace(EditingTagClass) ? null : EditingTagClass.Trim(),
                         Color = string.IsNullOrWhiteSpace(EditingTagColor) ? null : EditingTagColor.Trim()
                     };
 
-                    _dbContext.Tags.Add(newTag);
-                    _dbContext.SaveChanges();
+                    _apiClient.UpdateTagAsync(updated).GetAwaiter().GetResult();
+                    SelectedTag.Name = updated.Name;
+                    SelectedTag.Class = updated.Class;
+                    SelectedTag.Color = updated.Color;
+                }
+                else
+                {
+                    if (Tags.Any(t => t.Name == tagName))
+                    {
+                        MessageBox.Show("A tag with this name already exists.", "Duplicate Tag", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
 
-                    // Add to list
+                    var newTag = _apiClient.EnsureTagAsync(tagName).GetAwaiter().GetResult();
+                    newTag.Class = string.IsNullOrWhiteSpace(EditingTagClass) ? null : EditingTagClass.Trim();
+                    newTag.Color = string.IsNullOrWhiteSpace(EditingTagColor) ? null : EditingTagColor.Trim();
+                    _apiClient.UpdateTagAsync(newTag).GetAwaiter().GetResult();
+
                     var tagViewModel = new TagViewModel(newTag);
                     Tags.Add(tagViewModel);
                     SelectedTag = tagViewModel;
@@ -181,7 +164,7 @@ namespace FastPin.ViewModels
             SelectedTag = null;
             EditingTagName = string.Empty;
             EditingTagClass = null;
-            EditingTagColor = "#0078D4"; // Default color
+            EditingTagColor = "#0078D4";
             _isEditingExisting = false;
         }
 
@@ -200,17 +183,12 @@ namespace FastPin.ViewModels
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    var dbTag = _dbContext.Tags.Include(t => t.ItemTags).FirstOrDefault(t => t.Id == tag.Id);
-                    if (dbTag != null)
-                    {
-                        _dbContext.Tags.Remove(dbTag);
-                        _dbContext.SaveChanges();
-                        Tags.Remove(tag);
+                    _apiClient.DeleteTagAsync(tag.Id).GetAwaiter().GetResult();
+                    Tags.Remove(tag);
 
-                        if (SelectedTag == tag)
-                        {
-                            SelectedTag = null;
-                        }
+                    if (SelectedTag == tag)
+                    {
+                        SelectedTag = null;
                     }
                 }
             }
@@ -226,11 +204,6 @@ namespace FastPin.ViewModels
             {
                 EditingTagColor = colorHex;
             }
-        }
-
-        public void Dispose()
-        {
-            _dbContext?.Dispose();
         }
     }
 }
