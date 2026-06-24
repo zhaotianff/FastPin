@@ -12,7 +12,7 @@ namespace FastPin.ViewModels
     /// <summary>
     /// ViewModel for Tag Management window
     /// </summary>
-    public class TagManagementViewModel : ViewModelBase
+    public class TagManagementViewModel : ViewModelBase, IDisposable
     {
         private readonly FastPinApiClient _apiClient;
         private TagViewModel? _selectedTag;
@@ -204,6 +204,10 @@ namespace FastPin.ViewModels
             {
                 EditingTagColor = colorHex;
             }
+        }
+
+        public void Dispose()
+        {
         }
     }
 }
