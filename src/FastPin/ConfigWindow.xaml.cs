@@ -60,6 +60,7 @@ namespace FastPin
             MySqlDatabaseTextBox.Text = _settings.MySqlDatabase ?? "fastpin";
             MySqlUsernameTextBox.Text = _settings.MySqlUsername ?? "root";
             MySqlPasswordBox.Password = _settings.MySqlPassword ?? "";
+            WebApiAddressTextBox.Text = _settings.WebApiAddress ?? "http://localhost:5000";
         }
 
         private void LoadTags()
@@ -211,6 +212,7 @@ namespace FastPin
                 _settings.MySqlDatabase = MySqlDatabaseTextBox.Text;
                 _settings.MySqlUsername = MySqlUsernameTextBox.Text;
                 _settings.MySqlPassword = MySqlPasswordBox.Password;
+                _settings.WebApiAddress = WebApiAddressTextBox.Text;
 
                 _settings.Save();
 

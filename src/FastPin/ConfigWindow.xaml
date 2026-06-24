@@ -178,6 +178,21 @@
                                     </ComboBox>
                                 </Grid>
 
+                                <!-- Web API Address -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{conv:Localize WebApiAddress}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,15,0"
+                                               FontSize="14"/>
+                                    <TextBox Grid.Column="1" x:Name="WebApiAddressTextBox"
+                                             Style="{StaticResource ModernTextBoxStyle}"
+                                             FontSize="14"/>
+                                </Grid>
+
                                 <!-- MySQL Connection Settings -->
                                 <StackPanel x:Name="MySqlSettingsPanel" Visibility="Collapsed" Margin="0,10,0,0">
                                     <TextBlock Text="{conv:Localize MySqlConnectionSettings}" 
